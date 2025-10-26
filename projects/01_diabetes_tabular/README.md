@@ -3,16 +3,18 @@
 ## Problem Statement & Success Metrics
 
 ### Problem
-Predict the presence of diabetes (binary classification) from health factors including BMI, age, exercise habits, and other demographic/clinical variables.
+Predict diabetes status (**trinary classification**: No Diabetes, Prediabetes, Diabetes) from health factors including BMI, age, exercise habits, and other demographic/clinical variables.
 
 ### Questions to Explore
-- Which health factors are most predictive of diabetes?
-- Can we achieve acceptable screening performance (high recall for positive class)?
+- Which health factors are most predictive of diabetes status?
+- Can we achieve acceptable screening performance across all three classes?
 - How do classical baselines compare to a neural network?
+- How to handle severe class imbalance (84% vs 14% vs 2%)?
 
 ### Success Metrics
-- **Primary:** ROC-AUC ≥ 0.75
-- **Secondary:** F1-score for positive class ≥ 0.60
+- **Primary:** Macro-averaged F1-score ≥ 0.60
+- **Secondary:** Weighted ROC-AUC ≥ 0.75 (multi-class)
+- **Per-class Performance:** Focus on minority classes (Prediabetes, Diabetes)
 - **Interpretability:** Feature importance analysis
 
 ---
@@ -22,16 +24,35 @@ Predict the presence of diabetes (binary classification) from health factors inc
 ### Source
 - **Dataset:** Diabetes BRFSS 2015 (CDC Behavioral Risk Factor Surveillance System)
 - **Location:** `../data/diabetes_BRFSS2015.csv`
-- **Size:** ~250,000+ records
+- **Size:** 253,680 records × 22 columns
 
 ### Key Fields
-- **Target:** Diabetes (Yes/No)
+- **Target:** Diabetes (trinary classification: No Diabetes, Prediabetes, Diabetes)
 - **Features:** Age, BMI, exercise, education, income, health status, etc.
 - **Type:** Mixed (numeric + categorical)
 
 ### Target Distribution
-- Check notebook `02_load_and_inspect.ipynb` for class balance
-- Expect imbalance favoring "No diabetes"
+
+The dataset has a **trinary diabetes classification** with severe class imbalance:
+
+| Class | Label | Count | Percentage |
+|-------|-------|-------|------------|
+| 0 | No Diabetes | 213,703 | 84% |
+| 1 | Prediabetes | 4,631 | 2% |
+| 2 | Diabetes | 35,346 | 14% |
+
+![Class Distribution](images/class_balance.png)
+
+**Key Observations:**
+- Extreme imbalance (84% vs 14% vs 2%)
+- Requires stratified sampling for train/val/test splits
+- May need class weights or resampling techniques during training
+- Focus on metrics beyond accuracy (F1, precision, recall, ROC-AUC)
+
+### Data Quality
+- **Missing Values:** None detected ✅
+- **Data Types:** 4 numeric (BMI, GenHlth, MentHlth, PhysHlth), 18 object columns
+- **Schema Issues:** Many object columns need encoding (Yes/No, categorical variables)
 
 ---
 
@@ -44,13 +65,17 @@ Predict the presence of diabetes (binary classification) from health factors inc
 ### PyTorch Model
 - **Architecture:** Feed-Forward Network (FFN)
 - **Layers:** Input → Hidden(s) → Dropout → Output
-- **Loss:** BCEWithLogitsLoss (numerically stable)
+- **Loss:** CrossEntropyLoss (for multi-class classification)
 - **Training:** Adam optimizer, early stopping, validation monitoring
+- **Handling Imbalance:** Class weights or stratified sampling
 
 ### Evaluation
-- **Metrics:** Accuracy, Precision, Recall, F1, ROC-AUC
-- **Visualizations:** ROC curve, PR curve, Confusion Matrix
-- **Optional:** Threshold sweep for operating point selection
+- **Metrics:** 
+  - Macro-averaged: Precision, Recall, F1 across all classes
+  - Weighted averages (accounts for class imbalance)
+  - Per-class metrics (especially for minority classes)
+- **Visualizations:** Multi-class confusion matrix, per-class ROC curves
+- **Special Considerations:** Class imbalance handling strategies (class weights, stratified sampling)
 
 ---
 
@@ -80,17 +105,40 @@ Predict the presence of diabetes (binary classification) from health factors inc
 
 ---
 
+## Progress Status
+
+### ✅ Completed
+- [x] **Project Goals & Data** (Notebook 01) — Problem definition and metrics established
+- [x] **Load and Inspect** (Notebook 02) — Data loaded, schema analyzed, class distribution documented
+  - Dataset: 253,680 rows × 22 columns
+  - Trinary classification confirmed (No Diabetes, Prediabetes, Diabetes)
+  - Severe class imbalance identified (84% / 14% / 2%)
+  - No missing values detected
+  - Schema issues identified (18 object columns need encoding)
+
+### 🚧 In Progress
+- [ ] **Cleaning** (Notebook 03)
+- [ ] **EDA & Visualization** (Notebook 04)
+- [ ] **Preprocessing** (Notebook 05)
+- [ ] **Baselines** (Notebook 06)
+- [ ] **PyTorch Model** (Notebook 07)
+- [ ] **Evaluation** (Notebook 08)
+
+---
+
 ## Results Snapshot
 
 *Fill this section after completing all notebooks*
 
 ### Final Metrics
 
-| Model | Accuracy | ROC-AUC | F1 (Positive) | Precision | Recall |
-|-------|----------|---------|---------------|-----------|--------|
-| Logistic Regression | - | - | - | - | - |
-| Random Forest | - | - | - | - | - |
-| PyTorch FFN | - | - | - | - | - |
+| Model | Accuracy | Weighted F1 | Macro F1 | Class 0 F1 | Class 1 F1 | Class 2 F1 |
+|-------|----------|-------------|-----------|------------|------------|------------|
+| Logistic Regression | - | - | - | - | - | - |
+| Random Forest | - | - | - | - | - | - |
+| PyTorch FFN | - | - | - | - | - | - |
+
+*Class 0: No Diabetes, Class 1: Prediabetes, Class 2: Diabetes*
 
 ### Key Findings
 - [ ] Item 1
