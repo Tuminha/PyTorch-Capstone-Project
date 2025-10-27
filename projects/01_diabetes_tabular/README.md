@@ -136,6 +136,25 @@ The dataset has a **trinary diabetes classification** with severe class imbalanc
 
 ---
 
+## 📊 Visual Highlights
+
+### Feature Correlations
+![Correlation Matrix](images/diabetes_correlation.png)
+
+*Correlation heatmap showing relationships between numeric features. Strongest correlation: GenHlth ↔ PhysHlth (0.52)*
+
+### BMI Distribution by Diabetes Status
+![BMI by Diabetes](images/diabetes_bmi_by_target.png)
+
+*Clear separation: No Diabetes (lower BMI) vs. Diabetes/Prediabetes (higher BMI with larger spread)*
+
+### General Health by Diabetes Status
+![General Health by Diabetes](images/diabetes_genhlth_by_target.png)
+
+*Progressive health decline: No Diabetes (~2) → Prediabetes (~3) → Diabetes (~3.5-4)*
+
+---
+
 ## Results Snapshot
 
 *Fill this section after completing all notebooks*
