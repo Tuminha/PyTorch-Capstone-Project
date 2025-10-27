@@ -115,9 +115,14 @@ The dataset has a **trinary diabetes classification** with severe class imbalanc
   - Severe class imbalance identified (84% / 14% / 2%)
   - No missing values detected
   - Schema issues identified (18 object columns need encoding)
+- [x] **Cleaning** (Notebook 03) — Data cleaned and outliers handled
+  - Columns renamed to snake_case
+  - Categorical variables intentionally kept as objects for proper encoding later
+  - BMI extreme outliers capped at 60 (physiologically reasonable upper limit)
+  - MentHlth and PhysHlth verified as valid skewed distributions (0-30 days)
+  - GenHlth verified within valid range (1-5)
 
 ### 🚧 In Progress
-- [ ] **Cleaning** (Notebook 03)
 - [ ] **EDA & Visualization** (Notebook 04)
 - [ ] **Preprocessing** (Notebook 05)
 - [ ] **Baselines** (Notebook 06)

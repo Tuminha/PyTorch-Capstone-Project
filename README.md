@@ -78,15 +78,17 @@ Use `99_lab_notes.ipynb` in each project for ongoing reflections.
 
 ### Project 01: Diabetes Prediction (Tabular)
 
-**Goal:** Predict diabetes presence from health factors (BMI, age, exercise, etc.)
+**Goal:** Predict diabetes status (No Diabetes, Prediabetes, Diabetes) from health factors (BMI, age, exercise, etc.)
 
 **Approach:** 
 - Two baselines (Logistic Regression, Random Forest)
-- PyTorch Feed-Forward Network with BCEWithLogitsLoss
-- Evaluation: ROC-AUC, F1, Confusion Matrix
+- PyTorch Feed-Forward Network for multi-class classification
+- Evaluation: Weighted F1, Macro F1, per-class metrics
 
 **Notebooks:** 8 + lab notes  
 **Estimated Time:** 8-12 hours
+
+**Progress:** ✅ Completed notebooks 01-03 (Data inspection, cleaning, outlier handling)
 
 [📖 Project README](projects/01_diabetes_tabular/README.md)
 
