@@ -88,7 +88,7 @@ Use `99_lab_notes.ipynb` in each project for ongoing reflections.
 **Notebooks:** 8 + lab notes  
 **Estimated Time:** 8-12 hours
 
-**Progress:** ✅ Completed notebooks 01-04 (Data inspection, cleaning, outlier handling, EDA & visualization)
+**Progress:** ✅ Completed notebooks 01-05 (Data inspection, cleaning, outlier handling, EDA & visualization, preprocessing & splits)
 
 [📖 Project README](projects/01_diabetes_tabular/README.md)
 

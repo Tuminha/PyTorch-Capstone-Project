@@ -127,9 +127,16 @@ The dataset has a **trinary diabetes classification** with severe class imbalanc
   - General health ratings worsen from no diabetes (2) → prediabetes/diabetes (3-4)
   - Surprising finding: Prediabetes shows highest physical health burden
   - 8 visualizations generated and saved
+- [x] **Preprocessing & Splits** (Notebook 05) — Data prepared for modeling
+  - Data split: 70/15/15 (train/val/test) with stratification
+  - Binary encoding: 13 Yes/No columns → 0/1
+  - Ordinal encoding: age, education, income (preserving order)
+  - StandardScaler applied to numeric features (BMI, health measures)
+  - Class weights computed: {0: 0.396, 1: 18.26, 2: 2.39}
+  - Final feature count: 21 features, all numeric
+  - Data leakage prevention verified
 
 ### 🚧 In Progress
-- [ ] **Preprocessing** (Notebook 05)
 - [ ] **Baselines** (Notebook 06)
 - [ ] **PyTorch Model** (Notebook 07)
 - [ ] **Evaluation** (Notebook 08)
