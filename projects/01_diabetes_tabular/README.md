@@ -121,9 +121,14 @@ The dataset has a **trinary diabetes classification** with severe class imbalanc
   - BMI extreme outliers capped at 60 (physiologically reasonable upper limit)
   - MentHlth and PhysHlth verified as valid skewed distributions (0-30 days)
   - GenHlth verified within valid range (1-5)
+- [x] **EDA & Visualization** (Notebook 04) — Exploratory analysis completed
+  - Correlation heatmap: GenHlth ↔ PhysHlth (0.52), MentHlth ↔ PhysHlth (0.35)
+  - BMI distributions differ significantly across diabetes groups
+  - General health ratings worsen from no diabetes (2) → prediabetes/diabetes (3-4)
+  - Surprising finding: Prediabetes shows highest physical health burden
+  - 8 visualizations generated and saved
 
 ### 🚧 In Progress
-- [ ] **EDA & Visualization** (Notebook 04)
 - [ ] **Preprocessing** (Notebook 05)
 - [ ] **Baselines** (Notebook 06)
 - [ ] **PyTorch Model** (Notebook 07)
