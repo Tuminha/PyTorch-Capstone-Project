@@ -142,9 +142,17 @@ The dataset has a **trinary diabetes classification** with severe class imbalanc
   - ROC-AUC: ~0.815 for both models
   - Key insight: Severe class imbalance limits baseline performance
   - Realistic PyTorch target: 70-75% accuracy, F1 macro: 0.50-0.60
+- [x] **PyTorch Model** (Notebook 07) — Feed-forward network built and trained
+  - Architecture: 21 → 256 → 128 → 64 → 3 (4-layer FFN with dropout 0.3)
+  - Optimizer: SGD with momentum (0.9), learning rate: 0.0001
+  - Training: 30 epochs, convergence at ~25 epochs
+  - Loss: Train 1.01→0.91 (10% improvement), Val 0.95→0.90
+  - Class weights applied to handle imbalance
+  - No overfitting detected (train/val gap < 0.02)
+  - Model saved to `models/diabetes_ffn_best.pth`
+  - Key learning: SGD outperformed Adam for this imbalanced problem
 
 ### 🚧 In Progress
-- [ ] **PyTorch Model** (Notebook 07)
 - [ ] **Evaluation** (Notebook 08)
 
 ---
@@ -165,6 +173,11 @@ The dataset has a **trinary diabetes classification** with severe class imbalanc
 ![General Health by Diabetes](images/diabetes_genhlth_by_target.png)
 
 *Progressive health decline: No Diabetes (~2) → Prediabetes (~3) → Diabetes (~3.5-4)*
+
+### PyTorch Training Curves
+![Training Curves](images/training_curves.png)
+
+*Neural network training progress over 30 epochs. Rapid initial learning (epochs 1-5) followed by gradual convergence. No overfitting - train and validation losses track closely throughout.*
 
 ---
 

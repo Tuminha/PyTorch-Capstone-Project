@@ -1,0 +1,23 @@
+
+PyTorch Diabetes Classification Model
+======================================
+Training Date: 2025-10-28 18:54:23.666562
+
+Architecture:
+- Input: 21 features
+- Hidden: 256 → 128 → 64
+- Output: 3 classes (No Diabetes, Prediabetes, Diabetes)
+- Dropout: 0.3
+
+Hyperparameters:
+- Optimizer: SGD with momentum=0.9
+- Learning Rate: 0.0001
+- Batch Size: 32
+- Epochs: 30
+
+Final Results:
+- Train Loss: 0.9124
+- Val Loss: 0.9047
+
+Model File: diabetes_ffn_best.pth
+Checkpoint File: diabetes_ffn_checkpoint.pth
