@@ -135,9 +135,15 @@ The dataset has a **trinary diabetes classification** with severe class imbalanc
   - Class weights computed: {0: 0.396, 1: 18.26, 2: 2.39}
   - Final feature count: 21 features, all numeric
   - Data leakage prevention verified
+- [x] **Baseline Models** (Notebook 06) — Logistic Regression & Random Forest trained
+  - Logistic Regression: 64.4% accuracy, F1 weighted: 0.719
+  - Random Forest: 67.9% accuracy, F1 weighted: 0.734 (winner)
+  - Both models struggle with prediabetes (2% of data): 13-31% recall
+  - ROC-AUC: ~0.815 for both models
+  - Key insight: Severe class imbalance limits baseline performance
+  - Realistic PyTorch target: 70-75% accuracy, F1 macro: 0.50-0.60
 
 ### 🚧 In Progress
-- [ ] **Baselines** (Notebook 06)
 - [ ] **PyTorch Model** (Notebook 07)
 - [ ] **Evaluation** (Notebook 08)
 
