@@ -1,0 +1,131 @@
+{
+  "logistic_regression": {
+    "metrics": {
+      "accuracy": 0.6439346157889204,
+      "precision_weighted": 0.8521270719498015,
+      "recall_weighted": 0.6439346157889204,
+      "f1_weighted": 0.719372702594614,
+      "f1_macro": 0.4270835418115904,
+      "roc_auc_ovr_weighted": 0.8153886287972445
+    },
+    "confusion_matrix": [
+      [
+        21133,
+        5532,
+        5391
+      ],
+      [
+        175,
+        218,
+        301
+      ],
+      [
+        893,
+        1257,
+        3152
+      ]
+    ],
+    "classification_report": {
+      "No Diabetes": {
+        "precision": 0.951894058826179,
+        "recall": 0.659252558023459,
+        "f1-score": 0.7789962585472843,
+        "support": 32056.0
+      },
+      "Prediabetes": {
+        "precision": 0.031111745397459683,
+        "recall": 0.31412103746397696,
+        "f1-score": 0.05661602389300091,
+        "support": 694.0
+      },
+      "Diabetes": {
+        "precision": 0.35639981908638624,
+        "recall": 0.5944926442851755,
+        "f1-score": 0.44563834299448607,
+        "support": 5302.0
+      },
+      "accuracy": 0.6439346157889204,
+      "macro avg": {
+        "precision": 0.4464685411033416,
+        "recall": 0.5226220799242037,
+        "f1-score": 0.4270835418115904,
+        "support": 38052.0
+      },
+      "weighted avg": {
+        "precision": 0.8521270719498015,
+        "recall": 0.6439346157889204,
+        "f1-score": 0.719372702594614,
+        "support": 38052.0
+      }
+    }
+  },
+  "random_forest": {
+    "metrics": {
+      "accuracy": 0.6790444654683065,
+      "precision_weighted": 0.8431263669167273,
+      "recall_weighted": 0.6790444654683065,
+      "f1_weighted": 0.7336212036910527,
+      "f1_macro": 0.4288505468778819,
+      "roc_auc_ovr_weighted": 0.8155788248246245
+    },
+    "confusion_matrix": [
+      [
+        22031,
+        2732,
+        7293
+      ],
+      [
+        215,
+        92,
+        387
+      ],
+      [
+        1035,
+        551,
+        3716
+      ]
+    ],
+    "classification_report": {
+      "No Diabetes": {
+        "precision": 0.9463081482754178,
+        "recall": 0.6872660344397304,
+        "f1-score": 0.796248441368343,
+        "support": 32056.0
+      },
+      "Prediabetes": {
+        "precision": 0.02725925925925926,
+        "recall": 0.13256484149855907,
+        "f1-score": 0.04521995576308675,
+        "support": 694.0
+      },
+      "Diabetes": {
+        "precision": 0.3260793260793261,
+        "recall": 0.7008675971331573,
+        "f1-score": 0.44508324350221584,
+        "support": 5302.0
+      },
+      "accuracy": 0.6790444654683065,
+      "macro avg": {
+        "precision": 0.4332155778713343,
+        "recall": 0.5068994910238156,
+        "f1-score": 0.4288505468778819,
+        "support": 38052.0
+      },
+      "weighted avg": {
+        "precision": 0.8431263669167273,
+        "recall": 0.6790444654683065,
+        "f1-score": 0.7336212036910527,
+        "support": 38052.0
+      }
+    }
+  },
+  "metadata": {
+    "dataset": "BRFSS 2015 Diabetes",
+    "validation_set_size": 38052,
+    "class_distribution": {
+      "class_0": 32056,
+      "class_1": 694,
+      "class_2": 5302
+    }
+  }
+}

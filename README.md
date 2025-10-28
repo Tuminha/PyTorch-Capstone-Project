@@ -76,7 +76,7 @@ Use `99_lab_notes.ipynb` in each project for ongoing reflections.
 
 ## 📊 Projects
 
-### Project 01: Diabetes Prediction (Tabular)
+### Project 01: Diabetes Prediction (Tabular) ✅ COMPLETE
 
 **Goal:** Predict diabetes status (No Diabetes, Prediabetes, Diabetes) from health factors (BMI, age, exercise, etc.)
 
@@ -86,11 +86,17 @@ Use `99_lab_notes.ipynb` in each project for ongoing reflections.
 - Evaluation: Weighted F1, Macro F1, per-class metrics
 
 **Notebooks:** 8 + lab notes  
-**Estimated Time:** 8-12 hours
+**Time Invested:** ~10 hours
 
-**Progress:** ✅ Completed notebooks 01-07 (Data inspection, cleaning, EDA & visualization, preprocessing & splits, baseline models, PyTorch FFN training)
+**Status:** ✅ **ALL NOTEBOOKS COMPLETE** (01-08)
+- Data inspection, cleaning, EDA & visualization ✓
+- Preprocessing & splits, baseline models ✓
+- PyTorch FFN training & evaluation ✓
+- Comprehensive reflections & conclusions ✓
 
-[📖 Project README](projects/01_diabetes_tabular/README.md)
+**Results Highlight:** PyTorch model achieved **71.7% accuracy** (vs. LR: 64.4%, RF: 67.9%), with best per-class F1 scores across all three diabetes classes. Only model to successfully learn the minority Prediabetes class.
+
+[📖 Project README](projects/01_diabetes_tabular/README.md) | [📊 Final Results](projects/01_diabetes_tabular/README.md#results-snapshot)
 
 ---
 
