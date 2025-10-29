@@ -142,9 +142,48 @@ Classify medical Q&A text into **medical specialties** (e.g., Oncology, Cardiolo
 
 ## Results Snapshot
 
-*Fill this section after completing all notebooks*
+### Phase 0: Taxonomy Construction ✅ COMPLETE
 
-### Final Metrics
+**Challenge:** Reduced 5,126 fine-grained labels → 14 manageable medical specialties
+
+**Approach:** Sentence embeddings → UMAP → k-means (k=18) → Manual labeling
+
+**Final Taxonomy (14 Specialties):**
+
+| Specialty | Samples | % of Dataset |
+|-----------|---------|--------------|
+| Genetic & Rare Diseases | 4,066 | 24.8% |
+| General Medicine & Common Conditions | 2,192 | 13.4% |
+| Metabolic & Kidney Disorders | 1,707 | 10.4% |
+| Immunology & Hematology | 1,174 | 7.2% |
+| Pediatrics & Developmental Disorders | 1,130 | 6.9% |
+| Neurology & Neuromuscular Disorders | 904 | 5.5% |
+| General Medicine & Mixed Conditions | 868 | 5.3% |
+| Neurology & Movement Disorders | 867 | 5.3% |
+| Nephrology & Rheumatology | 750 | 4.6% |
+| Neurology & Genetic Disorders | 737 | 4.5% |
+| Infectious Diseases & Oncology | 634 | 3.9% |
+| Neurology & Autonomic Disorders | 589 | 3.6% |
+| Gastroenterology & Infectious Diseases | 510 | 3.1% |
+| Miscellaneous & Ethics | 270 | 1.6% |
+| **TOTAL** | **16,398** | **100%** |
+
+**Key Statistics:**
+- ✅ **Coverage:** 100% (all samples labeled)
+- ✅ **Class imbalance:** 15x (largest/smallest ratio - manageable)
+- ⚠️ **Label quality:** ~65% estimated accuracy (unsupervised approach)
+- 📊 **Reduction factor:** 366x (5,126 → 14 categories)
+
+**Limitations:**
+- Taxonomy based on semantic similarity (not clinical validation)
+- Some misclassifications expected (e.g., "Breast Cancer" in "Rare Diseases")
+- Suitable for ML education, not clinical deployment
+
+---
+
+### Phase 1-2: Text Classification Models
+
+*To be completed after Notebooks 04-06*
 
 | Model | Macro-F1 | Accuracy | Notes |
 |------|----------|----------|-------|
@@ -180,10 +219,16 @@ Classify medical Q&A text into **medical specialties** (e.g., Oncology, Cardiolo
 
 ## Progress Status
 
-**Current Phase:** Building specialty taxonomy (Notebook 00)
+**Current Phase:** ✅ Taxonomy Construction Complete | Starting Text Preprocessing (Notebook 01-02)
 
-- [x] Created `00_build_specialty_taxonomy.ipynb` with full scaffold
-- [ ] Complete Notebook 00 (taxonomy construction)
+- [x] **Notebook 00 COMPLETE** — Taxonomy construction
+  - [x] Embedded 4,742 unique focus_areas using sentence-transformers
+  - [x] Applied UMAP dimensionality reduction (768D → 2D)
+  - [x] Tested HDBSCAN (90% noise) & k-means clustering
+  - [x] Selected k=18 clusters using elbow method
+  - [x] Manually labeled clusters → 14 medical specialties
+  - [x] Applied taxonomy to full dataset (16,398 samples, 100% coverage)
+  - [x] Exported `medquad_with_specialties.csv`
 - [ ] Complete Notebook 01 (project scope)
 - [ ] Complete Notebook 02 (tokenization)
 - [ ] Complete Notebook 03 (encoding)
@@ -197,9 +242,11 @@ Classify medical Q&A text into **medical specialties** (e.g., Oncology, Cardiolo
 ## Next Steps
 
 **Immediate:**
-- [ ] Complete taxonomy construction (Notebook 00)
-- [ ] Validate specialty labels with zero-shot classification
-- [ ] Export clean `df_with_specialty.parquet`
+- [x] ✅ Complete taxonomy construction (Notebook 00)
+- [ ] 🎯 **START HERE:** Begin Notebook 01 (load labeled data, define metrics)
+- [ ] Complete text preprocessing (Notebook 02)
+- [ ] Build vocabulary & encoding pipeline (Notebook 03)
+- [ ] Train baseline classifier (Notebook 04)
 
 **Future Improvements:**
 - [ ] Experiment with different transformer architectures (BioBERT, ClinicalBERT)
@@ -208,6 +255,7 @@ Classify medical Q&A text into **medical specialties** (e.g., Oncology, Cardiolo
 - [ ] Expand dataset with more medical texts
 - [ ] Add explainability (SHAP for text, attention weights)
 - [ ] Test on held-out clinical notes (domain adaptation)
+- [ ] Refine taxonomy with medical expert validation
 
 ---
 

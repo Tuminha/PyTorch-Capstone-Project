@@ -100,19 +100,25 @@ Use `99_lab_notes.ipynb` in each project for ongoing reflections.
 
 ---
 
-### Project 02: Medical Text Classification
+### Project 02: Medical Text Classification 🚧 IN PROGRESS
 
-**Goal:** Classify medical Q&A text into categories
+**Goal:** Classify medical Q&A text into medical specialties (14 categories)
 
 **Approach:**
-- Baseline: Mean-pooled embeddings + Linear classifier
-- Fine-tuned Transformer (TinyBERT/RoBERTa)
+- Phase 0 (✅ COMPLETE): Build specialty taxonomy using embeddings + clustering
+- Phase 1: Baseline - Mean-pooled embeddings + Linear classifier
+- Phase 2: Fine-tuned Transformer (BioBERT/RoBERTa)
 - Evaluation: Macro-F1, per-class metrics, error analysis
 
-**Notebooks:** 6 + lab notes  
-**Estimated Time:** 6-10 hours
+**Notebooks:** 7 + lab notes (includes taxonomy construction)  
+**Time Invested:** ~3 hours (Notebook 00 complete)
 
-[📖 Project README](projects/02_medical_text/README.md)
+**Status:** ✅ **Phase 0 Complete** — Taxonomy built (5,126 → 14 specialties)
+- Reduced 5,126 fine-grained labels to 14 medical specialties
+- 16,398 samples labeled with 100% coverage
+- Ready for text classification (Notebooks 01-06)
+
+[📖 Project README](projects/02_medical_text/README.md) | [📊 Taxonomy Results](projects/02_medical_text/README.md#phase-0-taxonomy-construction--complete)
 
 ---
 
