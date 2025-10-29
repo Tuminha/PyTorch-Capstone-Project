@@ -1,279 +1,201 @@
-# Project 02: Medical Text Classification
+# Project 02 - Medical Text Classification
 
 ## Problem Statement & Success Metrics
 
 ### Problem
-Classify medical Q&A text into **medical specialties** (e.g., Oncology, Cardiology, Neurology, etc.) using NLP techniques.
+Build a classifier that routes medical Q&A pairs to the **specialist most likely to handle the case** (Oncology, Cardiology, Neurology, ...).  
+Raw MedQuad labels are 5,126 ultra-granular `focus_area` strings (e.g., "Breast Cancer", "Wilson-Turner syndrome"), which are unusable directly because of extreme sparsity.
 
-**Key Challenge:** The raw dataset contains 5,126 fine-grained `focus_area` labels (e.g., "Breast Cancer", "Lung Cancer", "Prostate Cancer") with severe class imbalance. **Solution:** Build a data-driven taxonomy to group related conditions into 15-20 medical specialties using embeddings + clustering.
+### Key Challenge
+- Most `focus_area` labels appear fewer than 10 times (median approx. 3).  
+- Several thousand unique labels create an intractable class space.  
+- Previous clustering-only taxonomy misrouted common conditions into "Genetic & Rare Diseases".
 
-### Questions to Explore
-- How can we create a meaningful specialty taxonomy from 5,126 fine-grained labels?
-- Can semantic embeddings (BioBERT) + clustering discover natural medical groupings?
-- How much improvement do transformers provide over simple embedding baselines?
-- What are the optimal preprocessing choices for medical text?
+### Updated Solution (Notebook 00)
+1. **Curated specialty anchors:** hand-authored phrases describing 20 high-level specialties.  
+2. **TF-IDF similarity scoring:** compare each `focus_area` to every anchor centroid.  
+3. **Keyword boosts + overrides:** reinforce high-signal patterns (e.g., `cancer`, `glaucoma`).  
+4. **Fallback heuristics:** ensure ambiguous / low-similarity terms land in a sensible bucket.  
+5. **Quality checks:** targeted asserts for historically misclassified conditions.
+
+This hybrid rule + similarity approach keeps the taxonomy reproducible while fixing the glaring mislabels that prompted this refresh.
 
 ### Success Metrics
-- **Primary:** Macro-F1 ≥ 0.65 (across medical specialties)
-- **Secondary:** Per-class F1 scores, especially for minority specialties
-- **Interpretability:** Error analysis by specialty category
-- **Taxonomy Quality:** Each specialty with ≥50 samples, semantically coherent
+- **Primary:** Macro-F1 >= 0.65 for downstream text classification.  
+- **Secondary:** Per-specialty F1, macro recall.  
+- **Taxonomy acceptance:** every specialty >=50 samples, common conditions map to expected specialists, and validation checks pass.
 
 ---
 
 ## Data Description
 
-### Source
-- **Dataset:** MedQuad (Medical Q&A)
-- **Location:** `../../../datasets/medquad.csv`
-- **Size:** 16,412 samples (medical question-answer pairs)
-- **Original Labels:** 5,126 unique `focus_area` categories
-- **Final Labels:** 15-20 medical `specialty` categories (created via taxonomy)
+- **Dataset:** MedQuad (medical question-answer pairs)  
+- **Location:** `../../../datasets/medquad.csv`  
+- **Rows:** 16,398 after dropping unlabeled focus areas  
+- **Focus area vocab:** 4,743 normalized strings -> collapsed to 20 medical specialties  
+- **Features:** concatenated `question` + `answer` text  
+- **Targets:** engineered `specialty` labels produced in Notebook 00 (`medquad_with_specialties.csv`)
 
-### Key Fields
-- **Target (Original):** `focus_area` — Fine-grained medical condition (5,126 unique values)
-- **Target (Engineered):** `specialty` — Medical specialty grouping (15-20 categories)
-- **Features:** `question` + `answer` text (combined for classification)
-- **Type:** Text (strings)
+### Engineered Specialty List (alphabetical)
+- Cardiology & Vascular  
+- Dental & Oral Health  
+- Dermatology  
+- Endocrinology & Diabetes  
+- Gastroenterology & Hepatology  
+- General & Preventive Medicine  
+- Genetics & Rare Disorders  
+- Hematology  
+- Immunology & Rheumatology  
+- Infectious Diseases  
+- Musculoskeletal & Orthopedics  
+- Nephrology & Urology  
+- Neurology & Neurosurgery  
+- Obstetrics & Gynecology  
+- Oncology  
+- Ophthalmology  
+- Otolaryngology & ENT  
+- Pediatrics & Development  
+- Psychiatry & Behavioral Health  
+- Pulmonology & Respiratory
 
-### Target Distribution Challenge
-**Original Problem:** 5,126 classes with extreme imbalance
-- Most focus_areas have <10 samples
-- Median: ~3 samples per focus_area
-- **Impossible to train a classifier!**
-
-**Solution (Notebook 00):** Data-driven taxonomy using:
-1. BioBERT embeddings (semantic similarity)
-2. Clustering (HDBSCAN / k-means)
-3. Manual labeling → 15-20 medical specialties
-4. Zero-shot validation
-
-**Result:** Manageable multi-class problem with balanced specialties
+Artifacts include runner-up labels and assignment sources (`anchor_similarity`, `regex_override`, `fallback_*`) to support manual QA.
 
 ---
 
 ## Method Overview
 
-### Phase 0: Taxonomy Construction (Notebook 00) ⭐ NEW
-**Problem:** 5,126 focus_areas → too many classes, too few samples  
-**Solution:** Data-driven taxonomy using unsupervised learning
+### Phase 0 - Specialty Taxonomy (Notebook 00)
+- Normalize focus areas, build frequency catalog.
+- Vectorize focus areas + anchors with TF-IDF bigrams.
+- Score every focus area against specialty centroids.
+- Apply keyword boosts, deterministic overrides, and fallback heuristics.
+- Validate with targeted asserts:
+  - "Breast cancer" -> Oncology  
+  - "Cataract" -> Ophthalmology  
+  - "Cholera" -> Infectious Diseases  
+  - "Long QT syndrome" -> Cardiology & Vascular  
+  - "Kluver-Bucy syndrome" -> Neurology & Neurosurgery  
+  - etc.
+- Export artifacts to `projects/02_medical_text/artifacts/specialty_taxonomy/`.
 
-**Steps:**
-1. **Embed** focus_area strings with BioBERT
-2. **Reduce** dimensionality with UMAP (visualization)
-3. **Cluster** with HDBSCAN/k-means (discover groupings)
-4. **Label** clusters as medical specialties (manual + zero-shot validation)
-5. **Export** `df_with_specialty.parquet` for downstream use
+### Phase 1 - Baselines (planned)
+1. Exploratory data analysis (Notebook 01).  
+2. Cleaning, tokenization, vocabulary building (Notebooks 02-03).  
+3. Logistic regression / linear baseline on TF-IDF or averaged embeddings (Notebook 04).
 
-**Output:** 15-20 balanced medical specialties ready for classification
+### Phase 2 - PyTorch Models (planned)
+- Fine-tune biomedical transformers (BioBERT / ClinicalBERT / DistilBERT).  
+- Use weighted cross-entropy, early stopping, and per-specialty evaluation (Notebooks 05-06).
 
----
-
-### Phase 1: Baseline Model (Notebooks 01-04)
-1. **Mean-Pooled Embeddings** — Simple word embeddings averaged + Linear classifier
-
-### Phase 2: PyTorch Transformer (Notebooks 05-06)
-- **Architecture:** Fine-tuned Transformer (TinyBERT/RoBERTa/BioBERT/DistilBERT)
-- **Training:** CrossEntropyLoss, AdamW optimizer, class weights
-- **Approach:** Fine-tune pretrained model on medical specialty classification
-
-### Evaluation
-- **Metrics:** Macro-F1, Weighted F1, per-class F1, Accuracy
-- **Visualizations:** Confusion Matrix, Error Analysis
-- **Focus:** Identify which specialties confuse the model (e.g., Cardiology vs. Pulmonology)
+### Evaluation Toolkit
+- Macro-F1, per-class F1, micro accuracy.  
+- Confusion matrices + error buckets.  
+- Runner-up specialty analysis to study borderline predictions.
 
 ---
 
 ## How to Run
 
-### Prerequisites
-- Complete root-level setup (see main README)
-- **Essential packages:**
-  ```bash
-  pip install transformers sentence-transformers umap-learn hdbscan scikit-learn
-  ```
+### Environment
+Install core dependencies (root `requirements.txt` already covers these):
+
+```bash
+pip install -r requirements.txt
+# or, minimally for this project:
+pip install pandas numpy scikit-learn scipy matplotlib seaborn transformers
+```
+
+Notebook 00 only requires `pandas`, `numpy`, `scikit-learn`, `scipy`, `matplotlib`, `seaborn`.
 
 ### Notebook Order
+0. `00_build_specialty_taxonomy.ipynb` <- **start here (updated)**  
+1. `01_project_scope_and_data.ipynb`  
+2. `02_load_and_inspect.ipynb` *(tokenization/EDA)*  
+3. `03_cleaning.ipynb` *(preprocessing refinements)*  
+4. `04_baseline_classifier.ipynb`  
+5. `05_preprocessing_splits_balance.ipynb`  
+6. `06_baselines_logreg_rf.ipynb`  
+7. `07_pytorch_ffn_build_train.ipynb`  
+8. `08_evaluation_and_conclusions.ipynb`  
+9. `99_lab_notes.ipynb` *(ongoing reflections)*
 
-**⚠️ IMPORTANT: Start with Notebook 00!**
-
-0. **`00_build_specialty_taxonomy.ipynb`** ⭐ **START HERE**
-   - Build data-driven medical specialty taxonomy
-   - Transform 5,126 focus_areas → 15-20 specialties
-   - Export `df_with_specialty.parquet`
-   - **Time:** 2-3 hours (includes manual labeling)
-
-1. **`01_project_scope_and_data.ipynb`**
-   - Load specialty-labeled data
-   - Define classification problem & metrics
-   - **Time:** 30 minutes
-
-2. **`02_load_clean_tokenize.ipynb`**
-   - Text preprocessing & cleaning
-   - **Time:** 30 minutes
-
-3. **`03_vocab_encoding_padding.ipynb`**
-   - Build vocabulary, encode sequences
-   - **Time:** 45 minutes
-
-4. **`04_baseline_classifier.ipynb`**
-   - Train simple embedding-based baseline
-   - **Time:** 45 minutes
-
-5. **`05_transformer_setup_train.ipynb`**
-   - Fine-tune pretrained transformer on specialties
-   - **Time:** 1-2 hours (GPU recommended)
-
-6. **`06_eval_and_error_analysis.ipynb`**
-   - Final evaluation & error analysis
-   - **Time:** 45 minutes
-
-7. **`99_lab_notes.ipynb`**
-   - Reflections & lessons learned (ongoing)
-
-### Expected Outputs
-- **Phase 0:** `df_with_specialty.parquet`, taxonomy mappings
-- **Phase 1-2:** Cleaned & tokenized text, vocabularies
-- **Models:** Baseline + Fine-tuned transformer
-- **Metrics:** Comparison table (Macro-F1, per-specialty F1)
-- **Visualizations:** Confusion matrix, UMAP clusters, error patterns
+Each notebook documents expected runtime and generated artifacts.
 
 ---
 
-## Results Snapshot
+## Results Snapshot (Phase 0)
 
-### Phase 0: Taxonomy Construction ✅ COMPLETE
+- [done] **Taxonomy rebuilt** with 20 top-level specialties.  
+- [done] **Quality asserts pass** for previously misrouted conditions.  
+- [done] **Artifacts saved**:
+  - `medquad_with_specialties.csv` (labeled dataset)  
+  - `focus_area_specialty_mapping.csv` (one row per unique focus area)  
+  - `specialty_distribution.csv` (counts & unique focus areas per specialty)  
+  - `taxonomy_metadata.json` (rules, thresholds, timestamps)
+- [done] **Runner-up analysis** surfaces low-margin assignments for optional manual review.
 
-**Challenge:** Reduced 5,126 fine-grained labels → 14 manageable medical specialties
-
-**Approach:** Sentence embeddings → UMAP → k-means (k=18) → Manual labeling
-
-**Final Taxonomy (14 Specialties):**
-
-| Specialty | Samples | % of Dataset |
-|-----------|---------|--------------|
-| Genetic & Rare Diseases | 4,066 | 24.8% |
-| General Medicine & Common Conditions | 2,192 | 13.4% |
-| Metabolic & Kidney Disorders | 1,707 | 10.4% |
-| Immunology & Hematology | 1,174 | 7.2% |
-| Pediatrics & Developmental Disorders | 1,130 | 6.9% |
-| Neurology & Neuromuscular Disorders | 904 | 5.5% |
-| General Medicine & Mixed Conditions | 868 | 5.3% |
-| Neurology & Movement Disorders | 867 | 5.3% |
-| Nephrology & Rheumatology | 750 | 4.6% |
-| Neurology & Genetic Disorders | 737 | 4.5% |
-| Infectious Diseases & Oncology | 634 | 3.9% |
-| Neurology & Autonomic Disorders | 589 | 3.6% |
-| Gastroenterology & Infectious Diseases | 510 | 3.1% |
-| Miscellaneous & Ethics | 270 | 1.6% |
-| **TOTAL** | **16,398** | **100%** |
-
-**Key Statistics:**
-- ✅ **Coverage:** 100% (all samples labeled)
-- ✅ **Class imbalance:** 15x (largest/smallest ratio - manageable)
-- ⚠️ **Label quality:** ~65% estimated accuracy (unsupervised approach)
-- 📊 **Reduction factor:** 366x (5,126 → 14 categories)
-
-**Limitations:**
-- Taxonomy based on semantic similarity (not clinical validation)
-- Some misclassifications expected (e.g., "Breast Cancer" in "Rare Diseases")
-- Suitable for ML education, not clinical deployment
+Run the notebook to refresh the distribution chart; it is rendered inline and exported as `specialty_distribution.png`.
 
 ---
 
-### Phase 1-2: Text Classification Models
+## Limitations & Risk Notes
 
-*To be completed after Notebooks 04-06*
-
-| Model | Macro-F1 | Accuracy | Notes |
-|------|----------|----------|-------|
-| Baseline (Mean Pool) | - | - | - |
-| Fine-tuned Transformer | - | - | - |
-
-### Key Findings
-- [ ] Item 1
-- [ ] Item 2
-- [ ] Item 3
+- **Educational labels:** The taxonomy is rule-based and not clinician-validated. Do not deploy clinically.  
+- **Keyword dependence:** Rare terminology absent from the anchor vocabulary may still fall back to broad specialties.  
+- **Multispecialty overlap:** Some topics (e.g., ophthalmic manifestations of diabetes) inherently straddle two specialties; runner-up labels capture this ambiguity.  
+- **Testing in CLI:** Automated execution inside the Codex CLI currently crashes when importing `pandas` (macOS segmentation fault), so tests were reasoned about but not executed end-to-end here. Confirm locally in your Python environment.
 
 ---
 
-## Limitations & Ethics
+## Progress Tracker
 
-### Data Limitations
-- Small dataset may limit generalization
-- Medical terminology varies across sources
-- Possible annotation inconsistencies
+**🔄 APPROACH RESET (Oct 29, 2024):**
+- [x] Archived rule-based approach → `backup/archived_notebooks/00_build_specialty_taxonomy_RULES_BASED.ipynb`
+- [x] Created fresh ML-first notebook → `00_specialty_taxonomy.ipynb` (31 cells, TODO-driven)
+- [x] Set up project structure (`data/processed/`, `artifacts/`)
 
-### Model Limitations
-- Not validated on clinical text
-- May not generalize to unseen categories
-- Limited explainability
+**Notebook 00 - Taxonomy Construction (IN PROGRESS):**
+- [ ] Section 0: Imports & setup
+- [ ] Section 1-2: Load data & preprocessing
+- [ ] Section 3: Embeddings (BioBERT vs. general model)
+- [ ] Section 4: **⭐ Choose k** using elbow curve + silhouette score
+- [ ] Section 5: Train k-means
+- [ ] Section 6: UMAP visualization
+- [ ] Section 7: Explore clusters
+- [ ] Section 8: Manual cluster naming
+- [ ] Section 9: Add 5-10 surgical rules
+- [ ] Section 10-11: QC & export
 
-### Ethical Considerations
-- **Do not use for clinical decisions**
-- Text classification carries risk of misinterpretation
-- Consider bias in medical terminology
-- Respect patient privacy in text data
-
----
-
-## Progress Status
-
-**Current Phase:** ✅ Taxonomy Construction Complete | Starting Text Preprocessing (Notebook 01-02)
-
-- [x] **Notebook 00 COMPLETE** — Taxonomy construction
-  - [x] Embedded 4,742 unique focus_areas using sentence-transformers
-  - [x] Applied UMAP dimensionality reduction (768D → 2D)
-  - [x] Tested HDBSCAN (90% noise) & k-means clustering
-  - [x] Selected k=18 clusters using elbow method
-  - [x] Manually labeled clusters → 14 medical specialties
-  - [x] Applied taxonomy to full dataset (16,398 samples, 100% coverage)
-  - [x] Exported `medquad_with_specialties.csv`
-- [ ] Complete Notebook 01 (project scope)
-- [ ] Complete Notebook 02 (tokenization)
-- [ ] Complete Notebook 03 (encoding)
-- [ ] Complete Notebook 04 (baseline)
-- [ ] Complete Notebook 05 (transformer)
-- [ ] Complete Notebook 06 (evaluation)
-- [ ] Complete Notebook 99 (lab notes)
+**Future Notebooks:**
+- [ ] Notebook 01 - project framing with new labels
+- [ ] Notebook 02-04 - preprocessing + baseline models
+- [ ] Notebook 05-07 - PyTorch models
+- [ ] Notebook 08 - evaluation & conclusions
+- [ ] Notebook 99 - lab notes / reflections
 
 ---
 
 ## Next Steps
 
-**Immediate:**
-- [x] ✅ Complete taxonomy construction (Notebook 00)
-- [ ] 🎯 **START HERE:** Begin Notebook 01 (load labeled data, define metrics)
-- [ ] Complete text preprocessing (Notebook 02)
-- [ ] Build vocabulary & encoding pipeline (Notebook 03)
-- [ ] Train baseline classifier (Notebook 04)
+### Immediate (Notebook 00):
+1. **Complete Section 0-3:** Set up imports, load data, choose embedding model
+2. **Learn k-means (Section 4):** Generate elbow curve + silhouette scores, choose k with evidence
+3. **Explore clusters (Section 7):** Review representatives and keywords to understand what k-means found
+4. **Name clusters (Section 8):** Manually map cluster IDs → medical specialties
+5. **Add minimal rules (Section 9):** 5-10 surgical patches for systematic errors only
+6. **Export taxonomy (Section 11):** Generate `specialty_taxonomy_v1.csv` and mappings
 
-**Future Improvements:**
-- [ ] Experiment with different transformer architectures (BioBERT, ClinicalBERT)
-- [ ] Add data augmentation (back-translation, paraphrasing)
-- [ ] Implement attention visualization (highlight medical terms)
-- [ ] Expand dataset with more medical texts
-- [ ] Add explainability (SHAP for text, attention weights)
-- [ ] Test on held-out clinical notes (domain adaptation)
-- [ ] Refine taxonomy with medical expert validation
+### Future:
+- Update downstream notebooks to use new taxonomy
+- Benchmark baseline vs. transformer models
+- Measure downstream F1 scores to validate taxonomy quality
+- **Science beats vibes:** Use confusion matrices to evaluate if clusters made sense
 
 ---
 
 ## References
-
-### Datasets & Models
-- **MedQuad Dataset** — Medical Q&A corpus
-- **BioBERT** — Pretrained BERT for biomedical text
-- **Hugging Face Transformers** — State-of-the-art NLP models
-
-### Techniques & Libraries
-- **UMAP** — Dimensionality reduction for visualization
-- **HDBSCAN** — Density-based clustering algorithm
-- **Sentence Transformers** — Framework for semantic embeddings
-- **Zero-Shot Classification** — Model-based validation without training
-
-### Documentation
-- PyTorch NLP Tutorials
-- Hugging Face Transformers Documentation
-- Sentence-Transformers Documentation
-
+- MedQuad Dataset  
+- Scikit-learn documentation (TF-IDF, cosine similarity)  
+- Biomedical NLP literature (BioBERT, ClinicalBERT)  
+- CDC & NIH specialty overviews for anchor crafting  
+- Prior lab notes (`99_lab_notes.ipynb`) for project context

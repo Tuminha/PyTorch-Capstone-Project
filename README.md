@@ -100,25 +100,31 @@ Use `99_lab_notes.ipynb` in each project for ongoing reflections.
 
 ---
 
-### Project 02: Medical Text Classification 🚧 IN PROGRESS
+### Project 02: Medical Text Classification 🔄 RESET & REBUILDING
 
-**Goal:** Classify medical Q&A text into medical specialties (14 categories)
+**Goal:** Classify medical Q&A text into medical specialties using ML-first approach
 
 **Approach:**
-- Phase 0 (✅ COMPLETE): Build specialty taxonomy using embeddings + clustering
+- Phase 0 (🔄 IN PROGRESS): Build specialty taxonomy using **unsupervised ML + minimal rules**
+  - Embeddings (BioBERT or sentence-transformers)
+  - K-means clustering (choose k with evidence: elbow + silhouette)
+  - UMAP visualization
+  - Manual cluster naming → specialties
+  - 5-10 surgical rules for systematic errors
 - Phase 1: Baseline - Mean-pooled embeddings + Linear classifier
 - Phase 2: Fine-tuned Transformer (BioBERT/RoBERTa)
 - Evaluation: Macro-F1, per-class metrics, error analysis
 
 **Notebooks:** 7 + lab notes (includes taxonomy construction)  
-**Time Invested:** ~3 hours (Notebook 00 complete)
+**Time Invested:** ~4 hours (reset approach for better learning)
 
-**Status:** ✅ **Phase 0 Complete** — Taxonomy built (5,126 → 14 specialties)
-- Reduced 5,126 fine-grained labels to 14 medical specialties
-- 16,398 samples labeled with 100% coverage
-- Ready for text classification (Notebooks 01-06)
+**Status:** 🎓 **ML-First Rebuild** — Learning clustering from scratch
+- **Archived:** Rule-based approach (100+ manual rules) → `backup/archived_notebooks/`
+- **New:** `00_specialty_taxonomy.ipynb` (31 cells, TODO-driven learning)
+- **Goal:** Reduce 5,126 fine-grained labels → 15-20 specialties using k-means
+- **Philosophy:** ML discovery first, minimal rules second (5-10 max)
 
-[📖 Project README](projects/02_medical_text/README.md) | [📊 Taxonomy Results](projects/02_medical_text/README.md#phase-0-taxonomy-construction--complete)
+[📖 Project README](projects/02_medical_text/README.md)
 
 ---
 
