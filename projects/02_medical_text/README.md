@@ -152,40 +152,64 @@ Run the notebook to refresh the distribution chart; it is rendered inline and ex
 ### The Challenge
 With 5,126 fine-grained `focus_area` labels and 16,398 medical Q&A samples, we needed to determine the optimal number of clusters (k) for our taxonomy.
 
-### Methodology
-We tested k values from 8 to 26, computing two key metrics:
+### Methodology Evolution: Learning from Question-Format Bias
+
+**First Attempt (Questions + Answers):**
+- Initially used concatenated `question + answer` text
+- **Discovery:** BioBERT clustered by question format, not medical content!
+- Examples: "How many people are affected by..." → prevalence cluster, "Is X inherited?" → genetics cluster
+- **Result:** 46% of clusters were question-type patterns, not specialties
+
+**Second Attempt (Answers Only):** ✅
+- Removed questions, embedded only answer text
+- **Discovery:** Template text bias still present (HPO symptom lists, NINDS research boilerplate)
+- **Result:** 46% of clusters were answer templates, not specialties
+- **But:** 54% of clusters showed clear medical specialty groupings!
+
+### K Selection Results
+
+We tested k values from 8 to 26 on **answer-only text**, computing two key metrics:
 
 1. **Inertia (Elbow Curve):** Measures cluster tightness (lower = better)
 2. **Silhouette Score:** Measures cluster separation quality (higher = better, range: -1 to 1)
-
-### Results & Key Finding
 
 <div align="center">
 <img src="images/elbow_silhouette.png" alt="Elbow Curve and Silhouette Score Analysis" width="800"/>
 </div>
 
-**Critical Discovery at k=20:**
-- The silhouette score **crashes to 0.035** at k=20 (poor separation)
-- But **jumps dramatically to 0.071 at k=22** (2× improvement!)
-- This sharp transition indicates **k=22 aligns with natural groupings** in medical text
-
-### Decision: k=22 ✅
+### Decision: k=15 ✅ (Mathematical Optimum)
 
 **Evidence-based reasoning:**
-- ✅ **Elbow curve:** Diminishing returns after k=16, gentle slope through k=22
-- ✅ **Silhouette score:** Sharp improvement from k=20 (0.035) → k=22 (0.071)
-- ✅ **Interpretability:** 22 clusters → ~15-20 medical specialties (manageable)
-- ✅ **Quality:** Silhouette of 0.071 indicates reasonable cluster separation for text data
+- ✅ **Silhouette score PEAKS at k=15** (~0.086) — highest cluster separation achieved
+- ✅ **Dramatic 35% drop at k=16** (0.086 → 0.056) — signals over-splitting natural groups
+- ✅ **Elbow curve:** Flattening around k=13-15 region
+- ✅ **Interpretability:** 15 clusters → manageable number of specialties
 
-**Why NOT k=20?** Worst silhouette score in the tested range (0.035) suggests awkward splits of natural groups.
+**Why k=15 over k=13?**
+- k=13: Silhouette = 0.080 (good)
+- k=15: Silhouette = 0.086 (7% better, mathematical peak)
+- Sharp drop after k=15 confirms this is the natural structure
 
-**Why NOT k=24-26?** Minimal silhouette improvement (0.073 vs 0.071) with added complexity.
+**Implementation Note:** Currently testing with k=13 for broader specialties, but k=15 is the statistically optimal choice.
+
+### UMAP Visualization: Cluster Structure
+
+<div align="center">
+<img src="images/umap_2d.png" alt="UMAP 2D Projection of Medical Text Clusters" width="800"/>
+</div>
+
+**Key Observations:**
+- **Well-separated clusters:** Some specialties (ophthalmology, diabetes) form distinct islands
+- **Central overlap:** Related specialties (cardiology, nephrology) share terminology
+- **Small isolated groups:** Rare disease clusters visible at periphery
+- **Convergence:** UMAP completed in 6/14 iterations (good sign!)
 
 ### Embeddings Used
 - **Model:** `pritamdeka/BioBERT-mnli-snli-scinli-scitail-mednli-stsb`
 - **Dimensions:** 768
 - **Normalization:** L2 normalized for cosine similarity
-- **Input:** Concatenated `question + answer` text
+- **Input:** Answer text only (questions removed to avoid format bias)
+- **UMAP Parameters:** n_neighbors=15, min_dist=0.1, metric='cosine'
 
 ---
 
@@ -199,12 +223,23 @@ We tested k values from 8 to 26, computing two key metrics:
 **Notebook 00 - Taxonomy Construction (IN PROGRESS):**
 - [x] Section 0: Imports & setup ✅
 - [x] Section 1-2: Load data & preprocessing ✅
-- [x] Section 3: Embeddings (BioBERT) ✅
-- [x] Section 4: **⭐ Choose k=22** using elbow curve + silhouette score ✅
-- [ ] Section 5: Train k-means with k=22
-- [ ] Section 6: UMAP visualization
-- [ ] Section 7: Explore clusters
-- [ ] Section 8: Manual cluster naming
+- [x] Section 3: Embeddings (BioBERT, answer-only text) ✅
+- [x] Section 4: **⭐ Choose k** using elbow curve + silhouette score ✅
+  - Discovered question-format bias with Q+A text
+  - Pivoted to answer-only text
+  - Identified k=15 as mathematical optimum (silhouette peak)
+  - Currently testing k=13 for broader specialties
+- [x] Section 5: Train k-means (k=13) ✅
+- [x] Section 6: UMAP visualization ✅
+  - Fixed UMAP import issues
+  - Generated 2D projection showing cluster structure
+  - Identified well-separated specialty islands
+- [x] Section 7: **Cluster exploration** ✅
+  - Analyzed all 13 clusters
+  - **Key finding:** 46% template-text bias (HPO, NINDS boilerplate)
+  - **Good clusters:** Pediatrics, Oncology, Nephrology, Genetics (54%)
+- [ ] Section 8: Manual cluster naming (PAUSED)
+  - Decision needed: merge template clusters or restart with filtered text
 - [ ] Section 9: Add 5-10 surgical rules
 - [ ] Section 10-11: QC & export
 
@@ -235,9 +270,37 @@ We tested k values from 8 to 26, computing two key metrics:
 
 ---
 
+## 🎓 Key Lessons Learned
+
+### Template Text Bias in Medical Q&A
+**Discovery:** Even with answer-only text, BioBERT clustered by linguistic patterns (HPO symptom lists, NINDS boilerplate, inheritance descriptions) rather than pure medical content in 46% of clusters.
+
+**Why This Matters:**
+- Real-world datasets often have **structural artifacts** from their data sources
+- Embeddings capture **both content AND format**
+- Pre-filtering or post-hoc curation is often necessary
+
+**What We'd Do Differently:**
+1. Filter boilerplate phrases before embedding (e.g., "Human Phenotype Ontology provides...")
+2. Use only the first 2-3 sentences of answers (avoid templates)
+3. Try domain-adapted models (ClinicalBERT, PubMedBERT)
+
+### When Unsupervised Learning Helps (and When It Doesn't)
+**Wins:** 54% of clusters showed clear medical specialties (Pediatrics, Oncology, Nephrology, Genetics)
+**Losses:** Template text overwhelmed semantic content in remaining clusters
+
+**Lesson:** Hybrid approaches (unsupervised discovery + manual curation) are often needed for messy real-world data.
+
+### Statistical Rigor in Hyperparameter Selection
+**Approach:** Generated elbow + silhouette plots, identified peak at k=15, documented decision process
+**Value:** Evidence-based choices > arbitrary guesses. Even when results weren't perfect, we know WHY.
+
+---
+
 ## References
 - MedQuad Dataset  
 - Scikit-learn documentation (TF-IDF, cosine similarity)  
 - Biomedical NLP literature (BioBERT, ClinicalBERT)  
-- CDC & NIH specialty overviews for anchor crafting  
+- UMAP documentation (McInnes et al., 2018)
+- Sentence-Transformers (Reimers & Gurevych, 2019)
 - Prior lab notes (`99_lab_notes.ipynb`) for project context

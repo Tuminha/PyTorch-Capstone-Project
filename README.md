@@ -106,9 +106,9 @@ Use `99_lab_notes.ipynb` in each project for ongoing reflections.
 
 **Approach:**
 - Phase 0 (🔄 IN PROGRESS): Build specialty taxonomy using **unsupervised ML + minimal rules**
-  - Embeddings (BioBERT or sentence-transformers)
-  - K-means clustering (choose k with evidence: elbow + silhouette)
-  - UMAP visualization
+  - BioBERT embeddings (768-dim, answer-only text)
+  - K-means clustering (k=13-15, evidence-based selection)
+  - UMAP visualization (2D projection)
   - Manual cluster naming → specialties
   - 5-10 surgical rules for systematic errors
 - Phase 1: Baseline - Mean-pooled embeddings + Linear classifier
@@ -116,13 +116,19 @@ Use `99_lab_notes.ipynb` in each project for ongoing reflections.
 - Evaluation: Macro-F1, per-class metrics, error analysis
 
 **Notebooks:** 7 + lab notes (includes taxonomy construction)  
-**Time Invested:** ~4 hours (reset approach for better learning)
+**Time Invested:** ~6 hours (reset approach for better learning)
 
-**Status:** 🎓 **ML-First Rebuild** — Learning clustering from scratch
+**Status:** 🎓 **ML-First Discovery** — Learning clustering from scratch
 - **Archived:** Rule-based approach (100+ manual rules) → `backup/archived_notebooks/`
-- **New:** `00_specialty_taxonomy.ipynb` (31 cells, TODO-driven learning)
-- **Goal:** Reduce 5,126 fine-grained labels → 15-20 specialties using k-means
-- **Philosophy:** ML discovery first, minimal rules second (5-10 max)
+- **New:** `00_specialty_taxonomy.ipynb` — 7/11 sections complete
+- **Progress:** 
+  - ✅ BioBERT embeddings (16,398 answers → 768-dim vectors)
+  - ✅ K-means hyperparameter tuning (k=15 optimal via silhouette peak)
+  - ✅ UMAP visualization showing cluster structure
+  - ✅ Cluster exploration revealing 54% specialty-based, 46% template-text bias
+  - 🔄 Decision point: manual merge vs. text filtering approach
+- **Key Discovery:** Template text bias (HPO lists, NINDS boilerplate) affects clustering
+- **Philosophy:** ML discovery first, document limitations, learn from messy data
 
 [📖 Project README](projects/02_medical_text/README.md)
 
