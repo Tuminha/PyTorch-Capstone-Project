@@ -147,6 +147,48 @@ Run the notebook to refresh the distribution chart; it is rendered inline and ex
 
 ---
 
+## 📊 K-Means Analysis: Choosing k with Evidence
+
+### The Challenge
+With 5,126 fine-grained `focus_area` labels and 16,398 medical Q&A samples, we needed to determine the optimal number of clusters (k) for our taxonomy.
+
+### Methodology
+We tested k values from 8 to 26, computing two key metrics:
+
+1. **Inertia (Elbow Curve):** Measures cluster tightness (lower = better)
+2. **Silhouette Score:** Measures cluster separation quality (higher = better, range: -1 to 1)
+
+### Results & Key Finding
+
+<div align="center">
+<img src="images/elbow_silhouette.png" alt="Elbow Curve and Silhouette Score Analysis" width="800"/>
+</div>
+
+**Critical Discovery at k=20:**
+- The silhouette score **crashes to 0.035** at k=20 (poor separation)
+- But **jumps dramatically to 0.071 at k=22** (2× improvement!)
+- This sharp transition indicates **k=22 aligns with natural groupings** in medical text
+
+### Decision: k=22 ✅
+
+**Evidence-based reasoning:**
+- ✅ **Elbow curve:** Diminishing returns after k=16, gentle slope through k=22
+- ✅ **Silhouette score:** Sharp improvement from k=20 (0.035) → k=22 (0.071)
+- ✅ **Interpretability:** 22 clusters → ~15-20 medical specialties (manageable)
+- ✅ **Quality:** Silhouette of 0.071 indicates reasonable cluster separation for text data
+
+**Why NOT k=20?** Worst silhouette score in the tested range (0.035) suggests awkward splits of natural groups.
+
+**Why NOT k=24-26?** Minimal silhouette improvement (0.073 vs 0.071) with added complexity.
+
+### Embeddings Used
+- **Model:** `pritamdeka/BioBERT-mnli-snli-scinli-scitail-mednli-stsb`
+- **Dimensions:** 768
+- **Normalization:** L2 normalized for cosine similarity
+- **Input:** Concatenated `question + answer` text
+
+---
+
 ## Progress Tracker
 
 **🔄 APPROACH RESET (Oct 29, 2024):**
@@ -155,11 +197,11 @@ Run the notebook to refresh the distribution chart; it is rendered inline and ex
 - [x] Set up project structure (`data/processed/`, `artifacts/`)
 
 **Notebook 00 - Taxonomy Construction (IN PROGRESS):**
-- [ ] Section 0: Imports & setup
-- [ ] Section 1-2: Load data & preprocessing
-- [ ] Section 3: Embeddings (BioBERT vs. general model)
-- [ ] Section 4: **⭐ Choose k** using elbow curve + silhouette score
-- [ ] Section 5: Train k-means
+- [x] Section 0: Imports & setup ✅
+- [x] Section 1-2: Load data & preprocessing ✅
+- [x] Section 3: Embeddings (BioBERT) ✅
+- [x] Section 4: **⭐ Choose k=22** using elbow curve + silhouette score ✅
+- [ ] Section 5: Train k-means with k=22
 - [ ] Section 6: UMAP visualization
 - [ ] Section 7: Explore clusters
 - [ ] Section 8: Manual cluster naming
