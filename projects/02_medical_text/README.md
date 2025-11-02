@@ -36,29 +36,33 @@ This hybrid rule + similarity approach keeps the taxonomy reproducible while fix
 - **Features:** concatenated `question` + `answer` text  
 - **Targets:** engineered `specialty` labels produced in Notebook 00 (`medquad_with_specialties.csv`)
 
-### Engineered Specialty List (alphabetical)
-- Cardiology & Vascular  
-- Dental & Oral Health  
-- Dermatology  
-- Endocrinology & Diabetes  
-- Gastroenterology & Hepatology  
-- General & Preventive Medicine  
-- Genetics & Rare Disorders  
-- Hematology  
-- Immunology & Rheumatology  
-- Infectious Diseases  
-- Musculoskeletal & Orthopedics  
-- Nephrology & Urology  
-- Neurology & Neurosurgery  
-- Obstetrics & Gynecology  
-- Oncology  
-- Ophthalmology  
-- Otolaryngology & ENT  
-- Pediatrics & Development  
-- Psychiatry & Behavioral Health  
-- Pulmonology & Respiratory
+### Final Specialty Taxonomy (13 Categories)
 
-Artifacts include runner-up labels and assignment sources (`anchor_similarity`, `regex_override`, `fallback_*`) to support manual QA.
+**Created via hybrid ML + rules approach in Notebook 00:**
+
+| Specialty | Sample Count | Source |
+|-----------|--------------|--------|
+| **Ophthalmology** | 3,388 | K-means cluster 3 + eye keyword overrides |
+| **Oncology** | 2,476 | K-means cluster 4 + cancer keyword overrides |
+| **Cardiology & Vascular** | 1,582 | K-means cluster 8 + heart keyword overrides |
+| **Infectious Diseases** | 1,517 | K-means cluster 5 + infection keyword overrides |
+| **Nephrology & Urology** | 1,383 | K-means cluster 12 + kidney keyword overrides |
+| **Neurology & Neurosurgery** | 1,370 | K-means cluster 6 + brain keyword overrides |
+| **General Health & Prevention** | 1,040 | K-means cluster 7 |
+| **Endocrinology & Diabetes** | 1,026 | K-means cluster 0 + diabetes keyword overrides |
+| **Obstetrics & Gynecology** | 824 | K-means cluster 9 + pregnancy keyword overrides |
+| **Rare Genetic Disorders** | 711 | K-means cluster 1 |
+| **Molecular Genetics & Mechanisms** | 499 | K-means cluster 11 |
+| **Genetic & Chromosomal Syndromes** | 380 | K-means cluster 10 |
+| **Pediatrics & Congenital Disorders** | 211 | K-means cluster 2 |
+
+**Total:** 16,407 labeled Q&A pairs  
+**Imbalance Ratio:** 16.1x (largest/smallest)
+
+### Hybrid Approach Details
+- **Base:** K-means clustering (k=13) on BioBERT embeddings (answer-only text)
+- **Refinement:** 8 surgical override rules for high-confidence keywords
+- **Template Text Handling:** Repurposed template-heavy clusters (HPO, NINDS) into clinical specialties
 
 ---
 
@@ -220,7 +224,7 @@ We tested k values from 8 to 26 on **answer-only text**, computing two key metri
 - [x] Created fresh ML-first notebook → `00_specialty_taxonomy.ipynb` (31 cells, TODO-driven)
 - [x] Set up project structure (`data/processed/`, `artifacts/`)
 
-**Notebook 00 - Taxonomy Construction (IN PROGRESS):**
+**Notebook 00 - Taxonomy Construction:** ✅ **COMPLETE**
 - [x] Section 0: Imports & setup ✅
 - [x] Section 1-2: Load data & preprocessing ✅
 - [x] Section 3: Embeddings (BioBERT, answer-only text) ✅
@@ -228,7 +232,7 @@ We tested k values from 8 to 26 on **answer-only text**, computing two key metri
   - Discovered question-format bias with Q+A text
   - Pivoted to answer-only text
   - Identified k=15 as mathematical optimum (silhouette peak)
-  - Currently testing k=13 for broader specialties
+  - Chose k=13 for broader, more stable specialties
 - [x] Section 5: Train k-means (k=13) ✅
 - [x] Section 6: UMAP visualization ✅
   - Fixed UMAP import issues
@@ -238,10 +242,17 @@ We tested k values from 8 to 26 on **answer-only text**, computing two key metri
   - Analyzed all 13 clusters
   - **Key finding:** 46% template-text bias (HPO, NINDS boilerplate)
   - **Good clusters:** Pediatrics, Oncology, Nephrology, Genetics (54%)
-- [ ] Section 8: Manual cluster naming (PAUSED)
-  - Decision needed: merge template clusters or restart with filtered text
-- [ ] Section 9: Add 5-10 surgical rules
-- [ ] Section 10-11: QC & export
+- [x] Section 8: Manual cluster naming ✅
+  - Created 13-specialty taxonomy
+  - Hybrid approach: kept good clusters, reassigned template clusters to clinical specialties
+- [x] Section 9: Add surgical rules ✅
+  - **8 override rules** for high-confidence keywords
+  - Rules: Cancer→Oncology, Diabetes→Endocrinology, Eye→Ophthalmology, Kidney→Nephrology, Infection→Infectious, Heart→Cardiology, Brain→Neurology, Pregnancy→Obstetrics
+- [x] Section 10-11: QC & export ✅
+  - Final distribution: 13 specialties, 16,407 samples
+  - Largest: Ophthalmology (3,388), Smallest: Pediatrics (211)
+  - Imbalance ratio: 16.1x
+  - All artifacts saved
 
 **Future Notebooks:**
 - [ ] Notebook 01 - project framing with new labels

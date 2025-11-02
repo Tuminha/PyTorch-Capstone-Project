@@ -116,19 +116,24 @@ Use `99_lab_notes.ipynb` in each project for ongoing reflections.
 - Evaluation: Macro-F1, per-class metrics, error analysis
 
 **Notebooks:** 7 + lab notes (includes taxonomy construction)  
-**Time Invested:** ~6 hours (reset approach for better learning)
+**Time Invested:** ~8 hours (reset approach for better learning)
 
-**Status:** 🎓 **ML-First Discovery** — Learning clustering from scratch
+**Status:** 🎉 **Phase 0 COMPLETE!** — Taxonomy built via unsupervised ML + minimal rules
 - **Archived:** Rule-based approach (100+ manual rules) → `backup/archived_notebooks/`
-- **New:** `00_specialty_taxonomy.ipynb` — 7/11 sections complete
-- **Progress:** 
-  - ✅ BioBERT embeddings (16,398 answers → 768-dim vectors)
-  - ✅ K-means hyperparameter tuning (k=15 optimal via silhouette peak)
-  - ✅ UMAP visualization showing cluster structure
-  - ✅ Cluster exploration revealing 54% specialty-based, 46% template-text bias
-  - 🔄 Decision point: manual merge vs. text filtering approach
-- **Key Discovery:** Template text bias (HPO lists, NINDS boilerplate) affects clustering
-- **Philosophy:** ML discovery first, document limitations, learn from messy data
+- **New:** `00_specialty_taxonomy.ipynb` ✅ **ALL 11 SECTIONS COMPLETE**
+- **Deliverables:** 
+  - ✅ 13-specialty taxonomy (16,407 labeled samples)
+  - ✅ BioBERT embeddings (768-dim, answer-only text)
+  - ✅ K-means clustering (k=13, evidence-based selection)
+  - ✅ UMAP 2D visualization
+  - ✅ 8 surgical override rules for systematic errors
+  - ✅ Final distribution: Ophthalmology (3,388) → Pediatrics (211)
+  - ✅ Imbalance ratio: 16.1x (manageable)
+- **Key Learnings:** 
+  - Template text bias affects 46% of clusters (HPO, NINDS boilerplate)
+  - Hybrid approach: ML discovery + targeted rules = practical solution
+  - Evidence-based k selection (silhouette peak method)
+- **Next:** Baseline classifiers (TF-IDF + Logistic Regression)
 
 [📖 Project README](projects/02_medical_text/README.md)
 
