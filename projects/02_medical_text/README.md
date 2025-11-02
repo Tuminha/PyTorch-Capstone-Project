@@ -361,8 +361,27 @@ Batch of labels: [32]       # 32 specialty labels
 - [x] Built PyTorch Dataset and DataLoader (batch_size=32)
 - [x] Comprehensive reflection on vocab size and max length trade-offs
 
+**Notebook 04 - Baseline Classifier:** 🚧 **IN PROGRESS**
+- [x] **Model architecture built:** `BaseLineClassifier` (Embedding → Mean Pool → Linear)
+  - Input: [batch, 512] token IDs
+  - Embedding: 15,000 vocab → 100-dim vectors
+  - Mean pooling: [batch, 512, 100] → [batch, 100]
+  - Linear classifier: [batch, 100] → [batch, 13] logits
+- [x] **Training loop implemented:** 5-step PyTorch mantra
+  - optimizer.zero_grad()
+  - forward pass
+  - loss calculation (CrossEntropyLoss)
+  - loss.backward()
+  - optimizer.step()
+- [x] **Initial training run:** 10 epochs, Adam optimizer (lr=0.001)
+  - Loss decreased from 2.29 → 1.29 (good convergence!)
+- [x] **Evaluation setup:** Model eval mode + metrics (accuracy, F1)
+- [ ] **⚠️ NEXT STEP:** Add train/test split (80/20) to prevent overfitting
+  - Current scores are inflated (training on full dataset, evaluating on same data)
+  - Need: `train_test_split` before DataLoader creation
+  - Expected: More realistic (lower) scores after split
+
 **Future Notebooks:**
-- [ ] Notebook 04 - Baseline classifier (TF-IDF + Logistic Regression)
 - [ ] Notebook 05 - Transformer setup & training
 - [ ] Notebook 06 - Evaluation & error analysis
 - [ ] Notebook 99 - lab notes / reflections
