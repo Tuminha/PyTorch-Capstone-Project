@@ -217,6 +217,53 @@ We tested k values from 8 to 26 on **answer-only text**, computing two key metri
 
 ---
 
+## 📏 Token Length Analysis: Padding Strategy
+
+### The Challenge
+Medical Q&A texts vary dramatically in length - from brief answers (50 tokens) to detailed explanations (4,000+ tokens). For efficient BERT training, we need to choose a fixed `max_seq_len` for padding/truncation.
+
+### Distribution Analysis
+
+<div align="center">
+<img src="images/token_distribution.png" alt="Token Length Distribution" width="800"/>
+</div>
+
+**Key Statistics (16,407 samples):**
+```
+Mean:          194.8 tokens
+Median (50%):  136 tokens
+75th:          245 tokens  
+95th:          499 tokens ← KEY DECISION POINT
+Max:           4,183 tokens
+```
+
+### Decision: max_seq_len = 512 ✅
+
+**Evidence-based reasoning:**
+- ✅ **95th percentile = 499 tokens** → BERT's 512 limit captures 95% of data fully
+- ✅ **Only 5% truncated** → Just 820 samples will be cut (acceptable trade-off)
+- ✅ **BERT's native maximum** → No custom configuration needed
+- ✅ **Efficient memory usage** → Much better than padding to max (4,183)
+- ✅ **Standard in literature** → Most BERT papers use 512
+
+### What This Means
+
+| Text Length | Action | Impact |
+|-------------|--------|--------|
+| < 512 tokens (95% of data) | Pad with zeros to 512 | Full information captured ✅ |
+| = 512 tokens | No change | Perfect fit ✅ |
+| > 512 tokens (5% of data) | Truncate to 512 | Some information lost ⚠️ |
+
+**Important:** We keep ALL 16,407 samples in the dataset. Truncation happens during tokenization, not by filtering data.
+
+### Strategy Impact
+- **Data retention:** 95% of texts fully captured
+- **Computational efficiency:** Balanced padding (not too short, not too long)
+- **Model performance:** Sufficient context for BERT to learn specialty patterns
+- **Memory usage:** Manageable batch sizes during training
+
+---
+
 ## Progress Tracker
 
 **🔄 APPROACH RESET (Oct 29, 2024):**
@@ -254,11 +301,23 @@ We tested k values from 8 to 26 on **answer-only text**, computing two key metri
   - Imbalance ratio: 16.1x
   - All artifacts saved
 
+**Notebook 01 - Project Scope & Data:** ✅ **COMPLETE**
+- [x] Loaded taxonomy (16,407 labeled samples)
+- [x] Defined success metrics (Macro-F1 ≥ 0.65)
+- [x] Class distribution analysis
+
+**Notebook 02 - Load, Clean & Tokenize:** ✅ **COMPLETE**
+- [x] Text cleaning & preprocessing
+- [x] Basic tokenization (word-level)
+- [x] Token length distribution analysis
+- [x] **Key finding:** 95th percentile = 499 tokens → Use max_seq_len=512 for BERT
+- [x] Reflection on padding strategy
+
 **Future Notebooks:**
-- [ ] Notebook 01 - project framing with new labels
-- [ ] Notebook 02-04 - preprocessing + baseline models
-- [ ] Notebook 05-07 - PyTorch models
-- [ ] Notebook 08 - evaluation & conclusions
+- [ ] Notebook 03 - Vocabulary & encoding
+- [ ] Notebook 04 - Baseline classifier (TF-IDF + Logistic Regression)
+- [ ] Notebook 05 - Transformer setup & training
+- [ ] Notebook 06 - Evaluation & error analysis
 - [ ] Notebook 99 - lab notes / reflections
 
 ---
@@ -282,6 +341,20 @@ We tested k values from 8 to 26 on **answer-only text**, computing two key metri
 ---
 
 ## 🎓 Key Lessons Learned
+
+### Token Length Analysis for Padding Decisions
+**Discovery:** Token lengths in medical Q&A vary dramatically (1 to 4,183 tokens), with a heavily right-skewed distribution where most texts are short but some are very long.
+
+**Why This Matters:**
+- Padding to **max length** (4,183) = 10x memory waste, slow training
+- Padding to **mean** (194) = truncating 50% of data, losing information
+- Padding to **95th percentile** (499) = optimal balance (95% captured, 5% truncated)
+
+**What We Learned:**
+1. Use percentile analysis (not just mean/median) to inform hyperparameter choices
+2. BERT's 512 token limit aligns perfectly with our 95th percentile (499)
+3. Keep all samples in dataset - truncation happens during tokenization, not filtering
+4. Evidence-based decisions > arbitrary choices
 
 ### Template Text Bias in Medical Q&A
 **Discovery:** Even with answer-only text, BioBERT clustered by linguistic patterns (HPO symptom lists, NINDS boilerplate, inheritance descriptions) rather than pure medical content in 46% of clusters.
