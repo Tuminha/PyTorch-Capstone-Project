@@ -264,6 +264,44 @@ Max:           4,183 tokens
 
 ---
 
+## 📚 Vocabulary & Data Preparation
+
+### Text → Numbers Pipeline
+
+Medical text undergoes a complete transformation before model training:
+
+**Step 1: Vocabulary Building**
+- **Total unique words:** 30,644 (after cleaning)
+- **Vocabulary size:** 15,000 words (top frequency)
+- **Special tokens:** `<PAD>` (0), `<UNK>` (1)
+- **Excluded:** 15,644 rare words (≤4 occurrences)
+
+**Step 2: Encoding**
+- Each word → unique integer ID via `word2idx`
+- Unknown words → `<UNK>` token (ID: 1)
+- **OOV rate:** 48% of samples contain ≥1 unknown word
+
+**Step 3: Padding/Truncation**
+- All sequences standardized to **512 tokens**
+- Short texts (< 512): Padded with zeros
+- Long texts (> 512): Truncated to first 512 tokens
+- **Impact:** 95% of texts fully captured, 5% truncated
+
+**Step 4: Label Encoding**
+- 13 specialties → integers (0-12)
+- Separate `label2idx` mapping (distinct from word vocab)
+- No missing labels (100% coverage)
+
+### Final Data Shape
+```python
+Batch of texts:  [32, 512]  # 32 samples, 512 tokens each
+Batch of labels: [32]       # 32 specialty labels
+```
+
+**Ready for:** PyTorch model training via DataLoader (batch_size=32, shuffle=True)
+
+---
+
 ## Progress Tracker
 
 **🔄 APPROACH RESET (Oct 29, 2024):**
@@ -313,8 +351,17 @@ Max:           4,183 tokens
 - [x] **Key finding:** 95th percentile = 499 tokens → Use max_seq_len=512 for BERT
 - [x] Reflection on padding strategy
 
+**Notebook 03 - Vocabulary, Encoding & Padding:** ✅ **COMPLETE**
+- [x] Built vocabulary (15,000 words from 30,644 unique)
+- [x] Created word2idx mapping with <PAD> and <UNK> tokens
+- [x] Encoded sequences to integer IDs
+- [x] **OOV analysis:** 48% of samples contain rare words (handled via <UNK>)
+- [x] Padded/truncated sequences to max_len=512
+- [x] Created label2idx for 13 specialties (separate from word vocab)
+- [x] Built PyTorch Dataset and DataLoader (batch_size=32)
+- [x] Comprehensive reflection on vocab size and max length trade-offs
+
 **Future Notebooks:**
-- [ ] Notebook 03 - Vocabulary & encoding
 - [ ] Notebook 04 - Baseline classifier (TF-IDF + Logistic Regression)
 - [ ] Notebook 05 - Transformer setup & training
 - [ ] Notebook 06 - Evaluation & error analysis
