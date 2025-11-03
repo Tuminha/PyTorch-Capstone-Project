@@ -389,6 +389,18 @@ Batch of labels: [32]       # 32 specialty labels
 - [x] **Model saved:** `../models/baseline_classifier.pth`
 - [x] **Comprehensive reflection:** Train/val/test importance, overfitting detection, epoch selection, comparison to Project 01, readiness for transformer
 
+### Baseline Training Curves (Overfitting Analysis)
+
+<div align="center">
+<img src="images/baseline_train_val_loss_accuracy.png" alt="Baseline Training and Validation Loss/Accuracy Curves" width="1000"/>
+</div>
+
+**Key Observations:**
+- **Left plot (Loss):** Train loss continues dropping while val loss plateaus at epoch 15-20 → classic overfitting
+- **Right plot (Accuracy):** Train accuracy climbs to 90%+ while val accuracy plateaus at 72% → 18% gap at epoch 50
+- **Decision point:** Epoch 12 chosen as optimal trade-off (train/val gap <5%, val loss beginning to plateau)
+- **Takeaway:** High train accuracy ≠ good model. Performance on unseen data (val/test) is what matters.
+
 **Future Notebooks:**
 - [ ] Notebook 05 - Transformer setup & training
 - [ ] Notebook 06 - Evaluation & error analysis
