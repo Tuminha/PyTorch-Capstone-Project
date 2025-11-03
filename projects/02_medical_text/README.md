@@ -361,7 +361,7 @@ Batch of labels: [32]       # 32 specialty labels
 - [x] Built PyTorch Dataset and DataLoader (batch_size=32)
 - [x] Comprehensive reflection on vocab size and max length trade-offs
 
-**Notebook 04 - Baseline Classifier:** 🚧 **IN PROGRESS**
+**Notebook 04 - Baseline Classifier:** ✅ **COMPLETE**
 - [x] **Model architecture built:** `BaseLineClassifier` (Embedding → Mean Pool → Linear)
   - Input: [batch, 512] token IDs
   - Embedding: 15,000 vocab → 100-dim vectors
@@ -373,13 +373,21 @@ Batch of labels: [32]       # 32 specialty labels
   - loss calculation (CrossEntropyLoss)
   - loss.backward()
   - optimizer.step()
-- [x] **Initial training run:** 10 epochs, Adam optimizer (lr=0.001)
-  - Loss decreased from 2.29 → 1.29 (good convergence!)
-- [x] **Evaluation setup:** Model eval mode + metrics (accuracy, F1)
-- [ ] **⚠️ NEXT STEP:** Add train/test split (80/20) to prevent overfitting
-  - Current scores are inflated (training on full dataset, evaluating on same data)
-  - Need: `train_test_split` before DataLoader creation
-  - Expected: More realistic (lower) scores after split
+- [x] **Train/Val/Test split implemented:** 60/20/20 split (stratified)
+  - Train: 9,844 samples | Val: 3,282 samples | Test: 3,281 samples
+  - Prevented overfitting from training on full dataset
+- [x] **Overfitting analysis completed:** Trained for 10, 20, 30, 50 epochs
+  - **Key finding:** Val loss plateaus around epoch 15-20
+  - **Decision:** Use 12 epochs for final model (balance speed vs. performance)
+  - Train/val gap at epoch 12: <5% (healthy!)
+  - Train/val gap at epoch 50: 18% (severe overfitting!)
+- [x] **Final test set evaluation (12 epochs):**
+  - **Accuracy: 72.36%** (realistic, honest metric)
+  - **F1 Weighted: 71.72%**
+  - **F1 Macro: 63.01%** ← BASELINE TO BEAT
+  - 8.7% gap between weighted/macro F1 reveals class imbalance issues
+- [x] **Model saved:** `../models/baseline_classifier.pth`
+- [x] **Comprehensive reflection:** Train/val/test importance, overfitting detection, epoch selection, comparison to Project 01, readiness for transformer
 
 **Future Notebooks:**
 - [ ] Notebook 05 - Transformer setup & training
