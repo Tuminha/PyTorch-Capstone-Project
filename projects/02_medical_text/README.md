@@ -389,6 +389,36 @@ Batch of labels: [32]       # 32 specialty labels
 - [x] **Model saved:** `../models/baseline_classifier.pth`
 - [x] **Comprehensive reflection:** Train/val/test importance, overfitting detection, epoch selection, comparison to Project 01, readiness for transformer
 
+**Notebook 05 - Transformer Setup & Training:** 🔄 **IN PROGRESS**
+- [x] **Model setup:** BioBERT (`dmis-lab/biobert-base-cased-v1.2`)
+  - 110M parameters (vs. baseline's ~1.5M)
+  - `AutoModelForSequenceClassification` with 13 output classes
+  - Native BERT tokenizer (subword tokenization)
+- [x] **Data preparation for BERT:**
+  - Raw text (no cleaning!) → BERT handles it
+  - Tokenization: `truncation=True, padding=True, max_length=512`
+  - `BERTDataset`: Returns `input_ids`, `attention_mask`, `labels`
+  - Same 60/20/20 split as baseline for fair comparison
+- [x] **Training configuration:**
+  - Optimizer: `AdamW` (lr=2e-5, weight_decay=0.01)
+  - Loss: `CrossEntropyLoss` (automatic via model)
+  - Epochs: 3 (reduced from 5 for speed)
+  - Batch size: 16 (smaller for memory efficiency)
+- [x] **CPU Training Challenge Discovered:** ⏰
+  - **Issue:** 110M params on CPU = 15 sec/batch = 2.5 hours/epoch!
+  - **Math:** 616 batches × 15 sec = ~2.5 hours × 5 epochs = 12.5 hours total
+  - **Baseline comparison:** Simple model trained in ~5 minutes, transformer takes hours
+  - **Solution:** Implemented dataset sampling + progress tracking
+- [x] **Speed Optimizations:**
+  - Stratified sampling: 20% of each class (16,398 → 3,280 samples)
+  - Reduced epochs: 5 → 3 for faster experimentation
+  - Progress tracking: Prints every 100 batches to monitor progress
+  - **New expected time:** ~30 min/epoch × 3 epochs = ~1.5 hours (vs. 12.5!)
+- [ ] **Training in progress...** (waiting for results)
+- [ ] **Evaluation:** Compare to baseline (F1 Macro: 63.01%)
+- [ ] **Model saving:** Best model based on validation F1
+- [ ] **Comprehensive reflection**
+
 ### Baseline Training Curves (Overfitting Analysis)
 
 <div align="center">
@@ -402,7 +432,7 @@ Batch of labels: [32]       # 32 specialty labels
 - **Takeaway:** High train accuracy ≠ good model. Performance on unseen data (val/test) is what matters.
 
 **Future Notebooks:**
-- [ ] Notebook 05 - Transformer setup & training
+- [x] Notebook 05 - Transformer setup & training (🔄 IN PROGRESS)
 - [ ] Notebook 06 - Evaluation & error analysis
 - [ ] Notebook 99 - lab notes / reflections
 
@@ -464,6 +494,31 @@ Batch of labels: [32]       # 32 specialty labels
 ### Statistical Rigor in Hyperparameter Selection
 **Approach:** Generated elbow + silhouette plots, identified peak at k=15, documented decision process
 **Value:** Evidence-based choices > arbitrary guesses. Even when results weren't perfect, we know WHY.
+
+### Transformer Training: CPU vs GPU Reality Check
+**Discovery:** BioBERT (110M params) on CPU = 15 seconds per batch = 2.5 hours per epoch!
+
+**Why This Matters:**
+- **Simple baseline model:** 5 minutes total training time (12 epochs)
+- **Transformer model:** 12.5 hours estimated (5 epochs, full dataset)
+- **73x slowdown:** From ~1.5M params (baseline) to 110M params (BERT)
+
+**Speed Breakdown:**
+| Setup | Batch Time | Epoch Time | Total Time (3 epochs) |
+|-------|------------|------------|----------------------|
+| Baseline (CPU) | 0.02 sec | 25 sec | ~1.5 min ⚡ |
+| BERT Full (CPU) | 15 sec | 2.5 hours | 7.5 hours 🐌 |
+| BERT Sampled (CPU) | 15 sec | 30 min | 1.5 hours ⏰ |
+| BERT Full (GPU) | 0.2 sec | 2 min | 6 min ⚡ |
+
+**Practical Solutions for Development:**
+1. **Dataset sampling:** Use 10-20% of data for fast iteration (5x speedup)
+2. **Reduce epochs:** 3 instead of 5 for initial experiments
+3. **Progress tracking:** Print every 100 batches to monitor training
+4. **Lighter models:** Try DistilBERT (66M params, 40% faster) or BERT-tiny (4x faster)
+5. **GPU access:** Colab/Kaggle for free GPU, or cloud services
+
+**Key Lesson:** For transformer development on CPU, iterate fast with small datasets, then scale up for final results. OR use GPU from the start if available!
 
 ---
 

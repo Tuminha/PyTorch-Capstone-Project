@@ -116,9 +116,9 @@ Use `99_lab_notes.ipynb` in each project for ongoing reflections.
 - Evaluation: Macro-F1, per-class metrics, error analysis
 
 **Notebooks:** 7 + lab notes (includes taxonomy construction)  
-**Time Invested:** ~8 hours (reset approach for better learning)
+**Time Invested:** ~10 hours (reset approach, completed baseline, transformer training in progress)
 
-**Status:** 🎉 **Phase 0 COMPLETE!** — Taxonomy built via unsupervised ML + minimal rules
+**Status:** 🔄 **Notebook 05 IN PROGRESS** — Transformer training on CPU (BioBERT)
 - **Archived:** Rule-based approach (100+ manual rules) → `backup/archived_notebooks/`
 - **New:** `00_specialty_taxonomy.ipynb` ✅ **ALL 11 SECTIONS COMPLETE**
 - **Deliverables:** 
@@ -133,7 +133,16 @@ Use `99_lab_notes.ipynb` in each project for ongoing reflections.
   - Template text bias affects 46% of clusters (HPO, NINDS boilerplate)
   - Hybrid approach: ML discovery + targeted rules = practical solution
   - Evidence-based k selection (silhouette peak method)
-- **Next:** Baseline classifiers (TF-IDF + Logistic Regression)
+
+**Recent Progress:**
+- ✅ **Notebook 01-03 COMPLETE:** Data loading, tokenization, vocabulary building, padding/encoding
+- ✅ **Notebook 04 COMPLETE:** Baseline classifier (Embedding + Linear)
+  - **Results:** Accuracy: 72.36%, F1 Macro: 63.01% ← BASELINE TO BEAT
+  - **Key finding:** Overfitting detected via train/val curves, optimal epoch = 12
+- 🔄 **Notebook 05 IN PROGRESS:** BioBERT transformer fine-tuning
+  - **Challenge:** 110M params on CPU = 2.5 hours/epoch (73x slower than baseline!)
+  - **Solution:** Dataset sampling (20% of data) + progress tracking
+  - **Expected:** Transformer should beat baseline significantly if training succeeds
 
 [📖 Project README](projects/02_medical_text/README.md)
 
