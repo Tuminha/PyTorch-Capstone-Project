@@ -389,7 +389,7 @@ Batch of labels: [32]       # 32 specialty labels
 - [x] **Model saved:** `../models/baseline_classifier.pth`
 - [x] **Comprehensive reflection:** Train/val/test importance, overfitting detection, epoch selection, comparison to Project 01, readiness for transformer
 
-**Notebook 05 - Transformer Setup & Training:** 🔄 **IN PROGRESS**
+**Notebook 05 - Transformer Setup & Training:** ✅ **COMPLETE**
 - [x] **Model setup:** BioBERT (`dmis-lab/biobert-base-cased-v1.2`)
   - 110M parameters (vs. baseline's ~1.5M)
   - `AutoModelForSequenceClassification` with 13 output classes
@@ -402,22 +402,37 @@ Batch of labels: [32]       # 32 specialty labels
 - [x] **Training configuration:**
   - Optimizer: `AdamW` (lr=2e-5, weight_decay=0.01)
   - Loss: `CrossEntropyLoss` (automatic via model)
-  - Epochs: 3 (reduced from 5 for speed)
+  - Epochs: 5 (restored full training)
   - Batch size: 16 (smaller for memory efficiency)
 - [x] **CPU Training Challenge Discovered:** ⏰
   - **Issue:** 110M params on CPU = 15 sec/batch = 2.5 hours/epoch!
   - **Math:** 616 batches × 15 sec = ~2.5 hours × 5 epochs = 12.5 hours total
   - **Baseline comparison:** Simple model trained in ~5 minutes, transformer takes hours
   - **Solution:** Implemented dataset sampling + progress tracking
-- [x] **Speed Optimizations:**
+- [x] **Speed Optimizations (Development Phase):**
   - Stratified sampling: 20% of each class (16,398 → 3,280 samples)
   - Reduced epochs: 5 → 3 for faster experimentation
   - Progress tracking: Prints every 100 batches to monitor progress
-  - **New expected time:** ~30 min/epoch × 3 epochs = ~1.5 hours (vs. 12.5!)
-- [ ] **Training in progress...** (waiting for results)
-- [ ] **Evaluation:** Compare to baseline (F1 Macro: 63.01%)
-- [ ] **Model saving:** Best model based on validation F1
-- [ ] **Comprehensive reflection**
+  - **Purpose:** Verify code works before committing to overnight training
+- [x] **Final Training (Full Dataset):**
+  - Restored full dataset (16,398 samples)
+  - Trained for 1 complete epoch (stopped early due to laptop limitations)
+  - **Results after Epoch 1:**
+    - **Train Loss:** 0.9224
+    - **Val Loss:** 0.3637 (excellent! lower than train → no overfitting)
+    - **Val F1 Macro:** **83.73%** 🎉
+    - **Improvement over baseline:** +20.72 points (33% relative improvement!)
+- [x] **Model saved:** `../models/biobert_best.pth` (best validation F1)
+- [x] **Early stopping decision:**
+  - Validation F1 already excellent (83.73%)
+  - Validation loss very low (0.36) → limited room for improvement
+  - Computational cost: 4 more epochs (8+ hours) vs. marginal gains (maybe +1-2%)
+  - Laptop practicality: Can't train overnight without keeping laptop open
+- [x] **Debugging wins:**
+  - Fixed `forward() got unexpected keyword 'labels'` → switched to `AutoModelForSequenceClassification`
+  - Added progress tracking after 32-minute silent training period
+  - Implemented stratified sampling for 5x faster iteration
+- [x] **Comprehensive reflection:** Transfer learning magic, computational reality, debugging journey, technical insights, practical takeaways
 
 ### Baseline Training Curves (Overfitting Analysis)
 
@@ -432,8 +447,8 @@ Batch of labels: [32]       # 32 specialty labels
 - **Takeaway:** High train accuracy ≠ good model. Performance on unseen data (val/test) is what matters.
 
 **Future Notebooks:**
-- [x] Notebook 05 - Transformer setup & training (🔄 IN PROGRESS)
-- [ ] Notebook 06 - Evaluation & error analysis
+- [x] Notebook 05 - Transformer setup & training ✅ **COMPLETE**
+- [ ] Notebook 06 - Evaluation & error analysis (🔄 **NEXT**)
 - [ ] Notebook 99 - lab notes / reflections
 
 ---
