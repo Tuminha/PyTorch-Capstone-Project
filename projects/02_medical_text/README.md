@@ -446,9 +446,58 @@ Batch of labels: [32]       # 32 specialty labels
 - **Decision point:** Epoch 12 chosen as optimal trade-off (train/val gap <5%, val loss beginning to plateau)
 - **Takeaway:** High train accuracy ≠ good model. Performance on unseen data (val/test) is what matters.
 
+**Notebook 06 - Evaluation & Error Analysis:** ✅ **COMPLETE**
+- [x] **Index-based splitting:** Ensures both models evaluated on identical test samples
+- [x] **Test set evaluation completed:**
+  - **Baseline Test Results:**
+    - Accuracy: 54.72%
+    - F1 Macro: **38.73%** (collapsed from 63.01% validation!)
+    - **3 classes with F1 = 0.00** (complete failure on rare specialties)
+  - **BioBERT Test Results:**
+    - Accuracy: **89.88%** (+35.16 points over baseline!)
+    - F1 Macro: **83.79%** (+45.06 points over baseline!)
+    - **All classes F1 ≥ 0.42** (no complete failures)
+- [x] **Baseline overfitting revealed:**
+  - Validation F1: 63.01% → Test F1: 38.73% (-24.28 points collapse!)
+  - OOV problem (48% samples with unknown words) amplified on test
+  - Model memorized training patterns, failed to generalize
+- [x] **BioBERT generalization validated:**
+  - Validation F1: 83.73% → Test F1: 83.79% (+0.06 improvement!)
+  - Zero overfitting detected
+  - Robust performance across all specialties
+- [x] **Per-class analysis:**
+  - BioBERT strongest classes: 5 specialties with F1 ≥ 0.93
+  - BioBERT weakest class: Class 10 (F1 = 0.42, still infinitely better than baseline's 0.00)
+  - Baseline failed completely on Classes 6, 10, 11 (F1 = 0.00 for each)
+- [x] **Visualizations created:**
+  - Baseline vs BioBERT metrics comparison (accuracy + F1 macro)
+  - Per-class F1 score comparison (13 specialties)
+- [x] **Key finding:** BioBERT achieved **2.16x better F1** (116% relative improvement)
+- [x] **Comprehensive reflection:** Overfitting analysis, transfer learning power, class imbalance effects, deployment recommendations
+
+### Test Set Performance Comparison
+
+<div align="center">
+<img src="images/baseline_vs_biobert_metrics.png" alt="Baseline vs BioBERT Test Metrics" width="800"/>
+</div>
+
+**Critical Finding:** Baseline collapsed on test set (38.73% F1), revealing severe overfitting despite early stopping. BioBERT maintained consistent performance (83.79% F1), demonstrating excellent generalization.
+
+### Per-Class F1 Score Analysis
+
+<div align="center">
+<img src="images/classwise_f1_comparison.png" alt="Class-wise F1 Score Comparison" width="1000"/>
+</div>
+
+**Key Observations:**
+- **BioBERT dominates ALL 13 classes** (no exceptions!)
+- **Baseline failed completely** on 3 classes (F1 = 0.00): Classes 6, 10, 11
+- **BioBERT's consistency:** Even weakest class (10) achieves F1 = 0.42
+- **Top BioBERT classes:** 5 specialties with F1 ≥ 0.93 (near-perfect classification)
+
 **Future Notebooks:**
 - [x] Notebook 05 - Transformer setup & training ✅ **COMPLETE**
-- [ ] Notebook 06 - Evaluation & error analysis (🔄 **NEXT**)
+- [x] Notebook 06 - Evaluation & error analysis ✅ **COMPLETE**
 - [ ] Notebook 99 - lab notes / reflections
 
 ---
