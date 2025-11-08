@@ -100,65 +100,98 @@ Use `99_lab_notes.ipynb` in each project for ongoing reflections.
 
 ---
 
-### Project 02: Medical Text Classification 🔄 RESET & REBUILDING
+### Project 02: Medical Text Classification ✅ COMPLETE
 
 **Goal:** Classify medical Q&A text into medical specialties using ML-first approach
 
 **Approach:**
-- Phase 0 (🔄 IN PROGRESS): Build specialty taxonomy using **unsupervised ML + minimal rules**
+- Phase 0: Build specialty taxonomy using **unsupervised ML + minimal rules**
   - BioBERT embeddings (768-dim, answer-only text)
-  - K-means clustering (k=13-15, evidence-based selection)
+  - K-means clustering (k=13, evidence-based selection)
   - UMAP visualization (2D projection)
   - Manual cluster naming → specialties
-  - 5-10 surgical rules for systematic errors
+  - 8 surgical override rules for systematic errors
 - Phase 1: Baseline - Mean-pooled embeddings + Linear classifier
-- Phase 2: Fine-tuned Transformer (BioBERT/RoBERTa)
-- Evaluation: Macro-F1, per-class metrics, error analysis
+- Phase 2: Fine-tuned Transformer (BioBERT)
+- Phase 3: Comprehensive evaluation - Test set, per-class analysis, overfitting detection
 
-**Notebooks:** 7 + lab notes (includes taxonomy construction)  
-**Time Invested:** ~10 hours (reset approach, completed baseline, transformer training in progress)
+**Notebooks:** 7 + lab notes  
+**Time Invested:** ~15-20 hours
 
-**Status:** 🔄 **Notebook 05 IN PROGRESS** — Transformer training on CPU (BioBERT)
-- **Archived:** Rule-based approach (100+ manual rules) → `backup/archived_notebooks/`
-- **New:** `00_specialty_taxonomy.ipynb` ✅ **ALL 11 SECTIONS COMPLETE**
-- **Deliverables:** 
-  - ✅ 13-specialty taxonomy (16,407 labeled samples)
-  - ✅ BioBERT embeddings (768-dim, answer-only text)
-  - ✅ K-means clustering (k=13, evidence-based selection)
-  - ✅ UMAP 2D visualization
-  - ✅ 8 surgical override rules for systematic errors
-  - ✅ Final distribution: Ophthalmology (3,388) → Pediatrics (211)
-  - ✅ Imbalance ratio: 16.1x (manageable)
-- **Key Learnings:** 
-  - Template text bias affects 46% of clusters (HPO, NINDS boilerplate)
-  - Hybrid approach: ML discovery + targeted rules = practical solution
-  - Evidence-based k selection (silhouette peak method)
+**Status:** ✅ **ALL NOTEBOOKS COMPLETE** (00-06 + LAB_NOTES)
+- ✅ **Notebook 00:** Specialty taxonomy (k-means clustering, UMAP visualization)
+- ✅ **Notebook 01-03:** Data loading, tokenization, vocabulary, encoding, padding
+- ✅ **Notebook 04:** Baseline classifier (Embedding + Linear)
+  - **Validation Results:** Accuracy: 72.36%, F1 Macro: 63.01%
+  - **Key finding:** Overfitting detected, optimal epoch = 12
+- ✅ **Notebook 05:** BioBERT transformer fine-tuning (1 epoch on CPU)
+  - **Validation Results:** Accuracy: N/A, F1 Macro: 83.73%
+  - **Challenge:** 110M params on CPU = 2.5 hours/epoch
+  - **Solution:** Strategic sampling + early stopping (1 epoch sufficient!)
+- ✅ **Notebook 06:** Final test set evaluation & comparison
+  - **Baseline Test F1:** 38.73% (collapsed -24 points from validation!)
+  - **BioBERT Test F1:** **83.79%** (matched validation, zero overfitting!)
+  - **Improvement:** **2.16x better** (116% relative improvement)
+- ✅ **LAB_NOTES:** Comprehensive reflections, key learnings, skills acquired
 
-**Recent Progress:**
-- ✅ **Notebook 01-03 COMPLETE:** Data loading, tokenization, vocabulary building, padding/encoding
-- ✅ **Notebook 04 COMPLETE:** Baseline classifier (Embedding + Linear)
-  - **Results:** Accuracy: 72.36%, F1 Macro: 63.01% ← BASELINE TO BEAT
-  - **Key finding:** Overfitting detected via train/val curves, optimal epoch = 12
-- 🔄 **Notebook 05 IN PROGRESS:** BioBERT transformer fine-tuning
-  - **Challenge:** 110M params on CPU = 2.5 hours/epoch (73x slower than baseline!)
-  - **Solution:** Dataset sampling (20% of data) + progress tracking
-  - **Expected:** Transformer should beat baseline significantly if training succeeds
+**Results Highlight:** BioBERT achieved **83.79% F1 Macro** on test set, dominating all 13 classes. Baseline collapsed from 63% validation to 39% test (severe overfitting). Transfer learning with domain-specific pre-trained models proved game-changing!
 
-[📖 Project README](projects/02_medical_text/README.md)
+**Key Findings:**
+- Transfer learning > training from scratch (2.16x improvement)
+- Baseline failed completely on 3 classes (F1 = 0.00), BioBERT handled all (min F1 = 0.42)
+- OOV problem (48% samples with unknown words) devastated baseline
+- Proper evaluation revealed overfitting: val metrics can mislead, test tells truth
+- Index-based splitting ensured fair comparison across different preprocessing pipelines
+
+[📖 Project README](projects/02_medical_text/README.md) | [📝 Lab Notes](projects/02_medical_text/LAB_NOTES.md) | [📊 Final Results](projects/02_medical_text/README.md#test-set-performance-comparison)
 
 ---
 
-### Project 03: Retinal Diabetic Retinopathy
+### Project 03: Retinal Diabetic Retinopathy 🔄 IN PROGRESS
 
-**Goal:** Classify retinal images by DR severity (0-4)
+**Goal:** Classify retinal fundus images by DR severity (5-class: 0=No DR, 1=Mild, 2=Moderate, 3=Severe, 4=Proliferative)
 
 **Approach:**
-- Simple CNN scaffold
-- Training with augmentations
-- Evaluation: Weighted-F1, confusion matrix, threshold tuning
+- Transfer learning with pre-trained CNN (ResNet/EfficientNet)
+- Data augmentation (address small dataset: 413 images)
+- Class weighting (handle severe imbalance: Class 1 only 20 samples)
+- Evaluation: Macro F1 (all classes equal) + Weighted F1 (practical performance)
 
 **Notebooks:** 5 + lab notes  
-**Estimated Time:** 6-10 hours
+**Time Invested:** ~2-3 hours
+
+**Status:** 🔄 **Notebook 01 COMPLETE** - Project scope, data loading, ethical analysis
+- ✅ **Notebook 01:** Project scope & data exploration
+  - **Dataset:** IDRiD (Indian Diabetic Retinopathy Image Dataset)
+  - **Images:** 413 retinal fundus images (224×224 RGB, pre-resized from 4288×2848)
+  - **Classes:** 5 severity levels (0-4)
+  - **Class Distribution:**
+    - Class 0 (No DR): 134 samples (32.4%)
+    - **Class 1 (Mild): 20 samples (4.8%)** ⚠️ **SEVERE IMBALANCE**
+    - Class 2 (Moderate): 136 samples (33.0%)
+    - Class 3 (Severe): 74 samples (17.9%)
+    - Class 4 (Proliferative): 49 samples (11.9%)
+  - **Imbalance Ratio:** 6.8:1 (Class 2 vs Class 1)
+- **Key Findings:**
+  - ⚠️ **Critical challenge:** Class 1 severely underrepresented (only 20 samples!)
+  - ⚠️ **Small dataset:** 413 images total → after split: ~248 train, ~83 val, ~82 test
+  - ⚠️ **Class 1 in training:** Only ~12 samples! Model will struggle to learn this class
+  - ✅ **Images pre-resized:** 224×224 (manageable for laptop training, originally 4288×2848)
+- **Ethical Considerations Documented:**
+  - Privacy risks (retinal images are biometric identifiers)
+  - False negative danger (missing mild DR delays treatment)
+  - Algorithmic bias (dataset from India, generalization concerns)
+  - Clinical deployment risks (AI as screening tool only, not diagnostic)
+- **Metrics Chosen:**
+  - **Macro F1:** Treat all severity levels equally (catch rare Class 1)
+  - **Weighted F1:** Overall practical performance
+  - **Per-class F1:** Monitor each severity level separately
+
+**Next Steps:**
+- [ ] Notebook 02 - Transforms & DataLoaders (augmentation strategies)
+- [ ] Notebook 03 - CNN architecture (transfer learning with class weights)
+- [ ] Notebook 04 - Training & validation
+- [ ] Notebook 05 - Test evaluation & threshold tuning
 
 [📖 Project README](projects/03_retinal_dr/README.md)
 
@@ -290,7 +323,8 @@ Each project reinforces core concepts while introducing domain-specific nuances.
     │   └── notebooks/            # 8 notebooks + lab notes
     ├── 02_medical_text/
     │   ├── README.md
-    │   └── notebooks/            # 6 notebooks + lab notes
+    │   ├── LAB_NOTES.md          # Comprehensive reflections
+    │   └── notebooks/            # 7 notebooks (00-06)
     └── 03_retinal_dr/
         ├── README.md
         └── notebooks/            # 5 notebooks + lab notes
