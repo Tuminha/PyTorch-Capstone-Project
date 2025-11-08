@@ -158,9 +158,9 @@ Use `99_lab_notes.ipynb` in each project for ongoing reflections.
 - Evaluation: Macro F1 (all classes equal) + Weighted F1 (practical performance)
 
 **Notebooks:** 5 + lab notes  
-**Time Invested:** ~2-3 hours
+**Time Invested:** ~4-5 hours
 
-**Status:** 🔄 **Notebook 01 COMPLETE** - Project scope, data loading, ethical analysis
+**Status:** 🔄 **Notebooks 01-02 COMPLETE** — Scope, data audit, transforms, DataLoaders
 - ✅ **Notebook 01:** Project scope & data exploration
   - **Dataset:** IDRiD (Indian Diabetic Retinopathy Image Dataset)
   - **Images:** 413 retinal fundus images (224×224 RGB, pre-resized from 4288×2848)
@@ -172,11 +172,18 @@ Use `99_lab_notes.ipynb` in each project for ongoing reflections.
     - Class 3 (Severe): 74 samples (17.9%)
     - Class 4 (Proliferative): 49 samples (11.9%)
   - **Imbalance Ratio:** 6.8:1 (Class 2 vs Class 1)
+- ✅ **Notebook 02:** Transforms & DataLoaders
+  - **Train transforms:** `Resize(224,224)` → `RandomHorizontalFlip()` → `ToTensor()` → `Normalize(ImageNet mean/std)`
+  - **Val/Test transforms:** Deterministic resize + normalization (no augmentation)
+  - **Custom Dataset:** `RetinalDataset(df, img_dir, transform)` returning `(image_tensor, label)`
+  - **DataLoader:** Batch size 32 → Batches confirm shape `[B, 3, 224, 224]`
+  - **Observations:** Final batch = 29 images (413 % 32) — expected; GPU-friendly tensors ready for transfer learning
 - **Key Findings:**
   - ⚠️ **Critical challenge:** Class 1 severely underrepresented (only 20 samples!)
   - ⚠️ **Small dataset:** 413 images total → after split: ~248 train, ~83 val, ~82 test
   - ⚠️ **Class 1 in training:** Only ~12 samples! Model will struggle to learn this class
   - ✅ **Images pre-resized:** 224×224 (manageable for laptop training, originally 4288×2848)
+  - ✅ **Transforms tested:** Augmentations verified to preserve tensor shape and channel order
 - **Ethical Considerations Documented:**
   - Privacy risks (retinal images are biometric identifiers)
   - False negative danger (missing mild DR delays treatment)
@@ -188,7 +195,7 @@ Use `99_lab_notes.ipynb` in each project for ongoing reflections.
   - **Per-class F1:** Monitor each severity level separately
 
 **Next Steps:**
-- [ ] Notebook 02 - Transforms & DataLoaders (augmentation strategies)
+- [x] Notebook 02 - Transforms & DataLoaders (augmentation strategies)
 - [ ] Notebook 03 - CNN architecture (transfer learning with class weights)
 - [ ] Notebook 04 - Training & validation
 - [ ] Notebook 05 - Test evaluation & threshold tuning
