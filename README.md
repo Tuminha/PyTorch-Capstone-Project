@@ -158,9 +158,9 @@ Use `99_lab_notes.ipynb` in each project for ongoing reflections.
 - Evaluation: Macro F1 (all classes equal) + Weighted F1 (practical performance)
 
 **Notebooks:** 5 + lab notes  
-**Time Invested:** ~6 hours
+**Time Invested:** ~7 hours
 
-**Status:** 🔄 **Notebooks 01-03 COMPLETE** — Scope, data audit, transforms, CNN scaffold
+**Status:** 🔄 **Notebooks 01-04 COMPLETE** — Scope, data audit, transforms, CNN scaffold, baseline training
 - ✅ **Notebook 01:** Project scope & data exploration
   - **Dataset:** IDRiD (Indian Diabetic Retinopathy Image Dataset)
   - **Images:** 413 retinal fundus images (224×224 RGB, pre-resized from 4288×2848)
@@ -183,10 +183,17 @@ Use `99_lab_notes.ipynb` in each project for ongoing reflections.
   - Flatten + FC head: `Linear(128×28×28 → 256 → num_classes)` with dropout 0.5
   - Forward pass verified (output `[B, 4]` after merging "Mild" into "No DR")
   - Reflection logged: ~3.6M parameters; architecture chosen to control overfitting on small dataset
+- ✅ **Notebook 04:** Training & validation loop
+  - Stratified train/val/test split with class merge (1→0) + class-weighted `CrossEntropyLoss`
+  - Early stopping (patience=5) saved epoch 3 checkpoint: **val acc = 0.4242**, val loss = 1.37
+  - 30-epoch experiment showed sharp overfitting (train acc → 0.8, val loss > 2.5); curves logged below
+  - ![Overfit run (30 epochs)](projects/03_retinal_dr/images/training_validation_metrics_30_epochs_overfitting.png)
+  - ![Early-stopped run (9 epochs)](projects/03_retinal_dr/images/training_validation_metrics.png)
 - **Key Findings:**
   - ⚠️ **Critical challenge:** Class 1 severely underrepresented (only 20 samples!)
   - ⚠️ **Small dataset:** 413 images total → after split: ~248 train, ~83 val, ~82 test
   - ⚠️ **Class 1 in training:** Only ~12 samples! Model will struggle to learn this class
+  - 📉 **Baseline limitation:** Scratch CNN memorises data after ~8 epochs; transfer learning + heavier augmentation needed
   - ✅ **Images pre-resized:** 224×224 (manageable for laptop training, originally 4288×2848)
   - ✅ **Transforms tested:** Augmentations verified to preserve tensor shape and channel order
 - **Ethical Considerations Documented:**
@@ -202,7 +209,7 @@ Use `99_lab_notes.ipynb` in each project for ongoing reflections.
 **Next Steps:**
 - [x] Notebook 02 - Transforms & DataLoaders (augmentation strategies)
 - [x] Notebook 03 - CNN architecture (transfer learning with class weights)
-- [ ] Notebook 04 - Training & validation
+- [x] Notebook 04 - Training & validation (baseline CNN)
 - [ ] Notebook 05 - Test evaluation & threshold tuning
 
 [📖 Project README](projects/03_retinal_dr/README.md)

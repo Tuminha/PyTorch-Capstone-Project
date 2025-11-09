@@ -71,6 +71,13 @@ Classify retinal fundus images by diabetic retinopathy (DR) severity levels (0-4
 5. `05_test_eval_and_thresholding.ipynb` — Final evaluation
 6. `99_lab_notes.ipynb` — Reflections (ongoing)
 
+### Progress Notes
+- **Notebook 04 (Training & validation):**
+  - Stratified train/val/test split after merging class 1→0; class-weighted loss to counter imbalance.
+  - Early stopping (patience=5) retained epoch 3 checkpoint (**val acc 0.4242**, val loss 1.37).
+  - Long 30-epoch run overfit badly (train acc → 0.80, val loss > 2.5). Plots: `images/training_validation_metrics_30_epochs_overfitting.png`, `images/training_validation_metrics.png`.
+  - Next iterations will swap in a pretrained backbone + stronger augmentation to chase Weighted-F1 ≥ 0.70.
+
 ### Expected Outputs
 - **Data:** Preprocessed images with augmentations
 - **Model:** Trained CNN
