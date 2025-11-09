@@ -88,22 +88,18 @@ Classify retinal fundus images by diabetic retinopathy (DR) severity levels (0-4
 
 ## Results Snapshot
 
-*Fill this section after completing all notebooks*
-
-### Final Metrics
-
 | Model | Weighted-F1 | Accuracy | Notes |
 |------|-------------|----------|-------|
-| Simple CNN | - | - | - |
+| Simple CNN (scratch) | 0.43 | 0.52 | Classes 2 & 3 receive 0 predicted samples; relies on classes 0/1 |
 
 ### Key Findings
-- [ ] Item 1
-- [ ] Item 2
-- [ ] Item 3
+- Baseline CNN overfits after ~8 epochs despite early stopping safeguards.
+- Severe class imbalance (support 15 & 10) collapses moderate/severe predictions; confusion matrix shows funnel into class 1.
+- Transfer learning + augmentation and/or resampling needed before targeting Weighted-F1 ≥ 0.70.
 
 ### Operating Threshold
-- **Chosen threshold:** (if applicable)
-- **Rationale:** Screening vs diagnostics trade-offs
+- **Chosen threshold:** Softmax argmax (no threshold tuning yet)
+- **Rationale:** Baseline underperforms; hold off on screening thresholds until stronger model is in place.
 
 ---
 
@@ -119,6 +115,10 @@ Classify retinal fundus images by diabetic retinopathy (DR) severity levels (0-4
 - Not validated on external cohorts
 - Simple CNN may miss subtle features
 - No explainability (attention maps)
+
+### Confusion Matrix
+
+![Confusion matrix](images/confusion_matrix.png)
 
 ### Ethical Considerations
 - **Do not use for clinical diagnosis**

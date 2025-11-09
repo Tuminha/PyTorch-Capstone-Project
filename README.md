@@ -158,9 +158,9 @@ Use `99_lab_notes.ipynb` in each project for ongoing reflections.
 - Evaluation: Macro F1 (all classes equal) + Weighted F1 (practical performance)
 
 **Notebooks:** 5 + lab notes  
-**Time Invested:** ~7 hours
+**Time Invested:** ~7.5 hours
 
-**Status:** 🔄 **Notebooks 01-04 COMPLETE** — Scope, data audit, transforms, CNN scaffold, baseline training
+**Status:** 🔄 **Notebooks 01-05 COMPLETE** — Scope, data audit, transforms, CNN scaffold, baseline training, baseline evaluation
 - ✅ **Notebook 01:** Project scope & data exploration
   - **Dataset:** IDRiD (Indian Diabetic Retinopathy Image Dataset)
   - **Images:** 413 retinal fundus images (224×224 RGB, pre-resized from 4288×2848)
@@ -189,11 +189,17 @@ Use `99_lab_notes.ipynb` in each project for ongoing reflections.
   - 30-epoch experiment showed sharp overfitting (train acc → 0.8, val loss > 2.5); curves logged below
   - ![Overfit run (30 epochs)](projects/03_retinal_dr/images/training_validation_metrics_30_epochs_overfitting.png)
   - ![Early-stopped run (9 epochs)](projects/03_retinal_dr/images/training_validation_metrics.png)
+- ✅ **Notebook 05:** Test evaluation & confusion matrix
+  - Loaded epoch-3 checkpoint → **accuracy 0.52, weighted-F1 0.43, macro-F1 0.31** on 83-image test split
+  - Confusion matrix shows collapse of moderate/severe classes (no predicted samples):
+    ![Confusion matrix](projects/03_retinal_dr/images/confusion_matrix.png)
+  - Documented limitations; next iterations will lean on transfer learning + data balancing to recover classes 2 & 3
 - **Key Findings:**
   - ⚠️ **Critical challenge:** Class 1 severely underrepresented (only 20 samples!)
   - ⚠️ **Small dataset:** 413 images total → after split: ~248 train, ~83 val, ~82 test
   - ⚠️ **Class 1 in training:** Only ~12 samples! Model will struggle to learn this class
   - 📉 **Baseline limitation:** Scratch CNN memorises data after ~8 epochs; transfer learning + heavier augmentation needed
+  - ❗ **Evaluation reality check:** Weighted-F1 0.43 ≪ goal (0.70); classes 2 & 3 receive zero predictions in baseline
   - ✅ **Images pre-resized:** 224×224 (manageable for laptop training, originally 4288×2848)
   - ✅ **Transforms tested:** Augmentations verified to preserve tensor shape and channel order
 - **Ethical Considerations Documented:**
@@ -210,7 +216,9 @@ Use `99_lab_notes.ipynb` in each project for ongoing reflections.
 - [x] Notebook 02 - Transforms & DataLoaders (augmentation strategies)
 - [x] Notebook 03 - CNN architecture (transfer learning with class weights)
 - [x] Notebook 04 - Training & validation (baseline CNN)
-- [ ] Notebook 05 - Test evaluation & threshold tuning
+- [x] Notebook 05 - Test evaluation & threshold tuning (baseline results)
+- [ ] Switch to pretrained backbone (ResNet/EfficientNet) with stronger augmentation/oversampling
+- [ ] Re-run evaluation focusing on macro/weighted F1 and per-class recall
 
 [📖 Project README](projects/03_retinal_dr/README.md)
 
