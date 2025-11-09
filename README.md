@@ -158,9 +158,9 @@ Use `99_lab_notes.ipynb` in each project for ongoing reflections.
 - Evaluation: Macro F1 (all classes equal) + Weighted F1 (practical performance)
 
 **Notebooks:** 5 + lab notes  
-**Time Invested:** ~4-5 hours
+**Time Invested:** ~6 hours
 
-**Status:** 🔄 **Notebooks 01-02 COMPLETE** — Scope, data audit, transforms, DataLoaders
+**Status:** 🔄 **Notebooks 01-03 COMPLETE** — Scope, data audit, transforms, CNN scaffold
 - ✅ **Notebook 01:** Project scope & data exploration
   - **Dataset:** IDRiD (Indian Diabetic Retinopathy Image Dataset)
   - **Images:** 413 retinal fundus images (224×224 RGB, pre-resized from 4288×2848)
@@ -178,6 +178,11 @@ Use `99_lab_notes.ipynb` in each project for ongoing reflections.
   - **Custom Dataset:** `RetinalDataset(df, img_dir, transform)` returning `(image_tensor, label)`
   - **DataLoader:** Batch size 32 → Batches confirm shape `[B, 3, 224, 224]`
   - **Observations:** Final batch = 29 images (413 % 32) — expected; GPU-friendly tensors ready for transfer learning
+- ✅ **Notebook 03:** Simple CNN scaffold
+  - Built `SimpleCNN` with three Conv→ReLU→MaxPool blocks (32 → 64 → 128 filters)
+  - Flatten + FC head: `Linear(128×28×28 → 256 → num_classes)` with dropout 0.5
+  - Forward pass verified (output `[B, 4]` after merging "Mild" into "No DR")
+  - Reflection logged: ~3.6M parameters; architecture chosen to control overfitting on small dataset
 - **Key Findings:**
   - ⚠️ **Critical challenge:** Class 1 severely underrepresented (only 20 samples!)
   - ⚠️ **Small dataset:** 413 images total → after split: ~248 train, ~83 val, ~82 test
@@ -196,7 +201,7 @@ Use `99_lab_notes.ipynb` in each project for ongoing reflections.
 
 **Next Steps:**
 - [x] Notebook 02 - Transforms & DataLoaders (augmentation strategies)
-- [ ] Notebook 03 - CNN architecture (transfer learning with class weights)
+- [x] Notebook 03 - CNN architecture (transfer learning with class weights)
 - [ ] Notebook 04 - Training & validation
 - [ ] Notebook 05 - Test evaluation & threshold tuning
 
