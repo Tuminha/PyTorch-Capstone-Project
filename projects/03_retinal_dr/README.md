@@ -6,7 +6,7 @@
 Classify retinal fundus images by diabetic retinopathy (DR) severity levels (0-4).
 
 ### Questions to Explore
-- Can a simple CNN achieve reasonable DR classification?
+- Can a pretrained CNN backbone achieve reasonable DR classification?
 - What are the optimal image augmentations?
 - How do different architectures compare?
 
@@ -43,12 +43,13 @@ Classify retinal fundus images by diabetic retinopathy (DR) severity levels (0-4
 ## Method Overview
 
 ### Baseline Model
-1. **Simple CNN** — Custom architecture with Conv blocks + FC head
+1. **Transfer-learned ResNet18** — ImageNet backbone with dropout + linear head (4 classes)
 
 ### PyTorch Model
-- **Architecture:** CNN with conv layers, ReLU, MaxPool
-- **Training:** CrossEntropyLoss, Adam optimizer
-- **Augmentation:** Random flips, rotations, color jitter (train only)
+- **Architecture:** ResNet18 + dropout head (optionally freeze backbone)
+- **Training:** CrossEntropyLoss w/ class weights, AdamW optimizer, StepLR scheduler
+- **Augmentation:** RandomResizedCrop, flips (H/V), ColorJitter; eval uses Resize+CenterCrop
+- **Sampling:** WeightedRandomSampler to oversample rare grades in each epoch
 
 ### Evaluation
 - **Metrics:** Weighted-F1, per-class F1, Accuracy
@@ -66,17 +67,21 @@ Classify retinal fundus images by diabetic retinopathy (DR) severity levels (0-4
 ### Notebook Order
 1. `01_project_scope_and_data.ipynb` — Define problem & metrics
 2. `02_transforms_and_loaders.ipynb` — Image transforms & DataLoaders
-3. `03_simple_cnn_scaffold.ipynb` — Build CNN architecture
-4. `04_train_validate_metrics.ipynb` — Training loop & validation
-5. `05_test_eval_and_thresholding.ipynb` — Final evaluation
+3. `03_simple_cnn_scaffold.ipynb` — Earlier scratch CNN experiments (kept for reference)
+4. `04_train_validate_metrics.ipynb` — ResNet18 training loop, weighted sampling, metrics
+5. `05_test_eval_and_thresholding.ipynb` — Final evaluation + confusion matrix
 6. `99_lab_notes.ipynb` — Reflections (ongoing)
 
 ### Progress Notes
 - **Notebook 04 (Training & validation):**
-  - Stratified train/val/test split after merging class 1→0; class-weighted loss to counter imbalance.
-  - Early stopping (patience=5) retained epoch 3 checkpoint (**val acc 0.4242**, val loss 1.37).
-  - Long 30-epoch run overfit badly (train acc → 0.80, val loss > 2.5). Plots: `images/training_validation_metrics_30_epochs_overfitting.png`, `images/training_validation_metrics.png`.
-  - Next iterations will swap in a pretrained backbone + stronger augmentation to chase Weighted-F1 ≥ 0.70.
+  - Swapped scratch CNN for **ResNet-18** with Imagenet weights (backbone frozen, new classifier head)
+  - Stratified train/val/test split after merging class 1→0; class-weighted loss + early stopping (patience=5)
+  - ResNet head converged in ~18 epochs (**val acc ≈ 0.60, macro-F1 ≈ 0.61**)
+  - Training curves: `images/training_validation_metrics.png`
+- **Notebook 05 (Evaluation):**
+  - ResNet head on held-out test set → **accuracy 0.67, weighted-F1 0.68, macro-F1 0.65**
+  - Confusion matrix now shows balanced recall across all four severity buckets (`images/confusion_matrix.png`)
+  - Documented why transfer learning recovers rare classes vs the scratch CNN baseline
 
 ### Expected Outputs
 - **Data:** Preprocessed images with augmentations
@@ -90,16 +95,16 @@ Classify retinal fundus images by diabetic retinopathy (DR) severity levels (0-4
 
 | Model | Weighted-F1 | Accuracy | Notes |
 |------|-------------|----------|-------|
-| Simple CNN (scratch) | 0.43 | 0.52 | Classes 2 & 3 receive 0 predicted samples; relies on classes 0/1 |
+| ResNet18 (pretrained, frozen backbone) | 0.68 | 0.67 | Macro-F1 0.65; all classes ≥0.48 recall |
 
 ### Key Findings
-- Baseline CNN overfits after ~8 epochs despite early stopping safeguards.
-- Severe class imbalance (support 15 & 10) collapses moderate/severe predictions; confusion matrix shows funnel into class 1.
-- Transfer learning + augmentation and/or resampling needed before targeting Weighted-F1 ≥ 0.70.
+- Transfer learning (ResNet-18) lifted macro-F1 from 0.31 → 0.65 compared to the scratch CNN baseline.
+- Class weighting + pretrained filters finally gave `severe` & `proliferative` recall ≥0.67; confusion no longer collapses into class 1.
+- Dataset remains tiny/imbalanced—fine-tuning deeper blocks, focal loss, and retina-specific augments are the next levers.
 
 ### Operating Threshold
-- **Chosen threshold:** Softmax argmax (no threshold tuning yet)
-- **Rationale:** Baseline underperforms; hold off on screening thresholds until stronger model is in place.
+- **Chosen threshold:** Softmax argmax (no threshold sweep yet)
+- **Rationale:** First transferred baseline exceeds 0.65 macro-F1; will revisit thresholds after deeper fine-tuning.
 
 ---
 
@@ -113,7 +118,7 @@ Classify retinal fundus images by diabetic retinopathy (DR) severity levels (0-4
 
 ### Model Limitations
 - Not validated on external cohorts
-- Simple CNN may miss subtle features
+- Pretrained ResNet-18 still misclassifies moderate vs severe edges
 - No explainability (attention maps)
 
 ### Confusion Matrix
@@ -131,9 +136,10 @@ Classify retinal fundus images by diabetic retinopathy (DR) severity levels (0-4
 
 ## Next Steps
 
-- [ ] Transfer learning with pretrained ResNet/EfficientNet
+- [x] Transfer learning with pretrained ResNet/EfficientNet (ResNet18 in place; monitor performance)
+- [x] Experiment with different augmentations (RandomResizedCrop + ColorJitter, flips)
+- [x] Address imbalance with sampling/weighted loss
 - [ ] Add Grad-CAM for explainability
-- [ ] Experiment with different augmentations
 - [ ] Ensemble methods
 - [ ] Cross-validation for robust metrics
 - [ ] Focus on detecting severe cases (grouping 3+4)
@@ -145,4 +151,3 @@ Classify retinal fundus images by diabetic retinopathy (DR) severity levels (0-4
 - IDRiD Dataset: https://ieee-dataport.org/open-access/indian-diabetic-retinopathy-image-dataset-idrid
 - Diabetic Retinopathy Detection Literature
 - PyTorch Vision Documentation
-

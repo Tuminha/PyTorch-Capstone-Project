@@ -152,15 +152,15 @@ Use `99_lab_notes.ipynb` in each project for ongoing reflections.
 **Goal:** Classify retinal fundus images by DR severity (5-class: 0=No DR, 1=Mild, 2=Moderate, 3=Severe, 4=Proliferative)
 
 **Approach:**
-- Transfer learning with pre-trained CNN (ResNet/EfficientNet)
+- Transfer learning with pre-trained CNN (ResNet18/EfficientNet)
 - Data augmentation (address small dataset: 413 images)
 - Class weighting (handle severe imbalance: Class 1 only 20 samples)
 - Evaluation: Macro F1 (all classes equal) + Weighted F1 (practical performance)
 
 **Notebooks:** 5 + lab notes  
-**Time Invested:** ~7.5 hours
+**Time Invested:** ~8 hours
 
-**Status:** 🔄 **Notebooks 01-05 COMPLETE** — Scope, data audit, transforms, CNN scaffold, baseline training, baseline evaluation
+**Status:** 🔄 **Notebooks 01-05 COMPLETE** — Scope, data audit, transforms, CNN scaffold, transfer-learning training & evaluation
 - ✅ **Notebook 01:** Project scope & data exploration
   - **Dataset:** IDRiD (Indian Diabetic Retinopathy Image Dataset)
   - **Images:** 413 retinal fundus images (224×224 RGB, pre-resized from 4288×2848)
@@ -183,25 +183,21 @@ Use `99_lab_notes.ipynb` in each project for ongoing reflections.
   - Flatten + FC head: `Linear(128×28×28 → 256 → num_classes)` with dropout 0.5
   - Forward pass verified (output `[B, 4]` after merging "Mild" into "No DR")
   - Reflection logged: ~3.6M parameters; architecture chosen to control overfitting on small dataset
-- ✅ **Notebook 04:** Training & validation loop
-  - Stratified train/val/test split with class merge (1→0) + class-weighted `CrossEntropyLoss`
-  - Early stopping (patience=5) saved epoch 3 checkpoint: **val acc = 0.4242**, val loss = 1.37
-  - 30-epoch experiment showed sharp overfitting (train acc → 0.8, val loss > 2.5); curves logged below
-  - ![Overfit run (30 epochs)](projects/03_retinal_dr/images/training_validation_metrics_30_epochs_overfitting.png)
-  - ![Early-stopped run (9 epochs)](projects/03_retinal_dr/images/training_validation_metrics.png)
+- ✅ **Notebook 04:** Training & validation loop (transfer learning)
+  - Replaced scratch CNN with **ResNet-18 (Imagenet weights, frozen backbone + new head)**
+  - Fine-tuned head for 18 epochs with class-weighted CE → **val acc ≈ 0.60, macro-F1 ≈ 0.61**
+  - ![ResNet training curves](projects/03_retinal_dr/images/training_validation_metrics.png)
 - ✅ **Notebook 05:** Test evaluation & confusion matrix
-  - Loaded epoch-3 checkpoint → **accuracy 0.52, weighted-F1 0.43, macro-F1 0.31** on 83-image test split
-  - Confusion matrix shows collapse of moderate/severe classes (no predicted samples):
+  - ResNet-18 head on test split → **accuracy 0.67, weighted-F1 0.68, macro-F1 0.65**
+  - Confusion matrix shows balanced recall across all severities:
     ![Confusion matrix](projects/03_retinal_dr/images/confusion_matrix.png)
-  - Documented limitations; next iterations will lean on transfer learning + data balancing to recover classes 2 & 3
+  - Documented why transfer learning lifted rare-class recall vs scratch CNN
 - **Key Findings:**
-  - ⚠️ **Critical challenge:** Class 1 severely underrepresented (only 20 samples!)
+  - ⚠️ **Critical challenge:** Original class-1 support is still tiny (20 images).
   - ⚠️ **Small dataset:** 413 images total → after split: ~248 train, ~83 val, ~82 test
-  - ⚠️ **Class 1 in training:** Only ~12 samples! Model will struggle to learn this class
-  - 📉 **Baseline limitation:** Scratch CNN memorises data after ~8 epochs; transfer learning + heavier augmentation needed
-  - ❗ **Evaluation reality check:** Weighted-F1 0.43 ≪ goal (0.70); classes 2 & 3 receive zero predictions in baseline
-  - ✅ **Images pre-resized:** 224×224 (manageable for laptop training, originally 4288×2848)
-  - ✅ **Transforms tested:** Augmentations verified to preserve tensor shape and channel order
+  - 📈 **Transfer learning impact:** Macro-F1 jumped from 0.31 (scratch) → 0.65 after moving to ResNet-18 + class weighting
+  - ✅ Previously collapsed classes (`severe`, `proliferative`) now achieve recall ≥0.67
+  - ✅ **Transforms validated:** Augmentations preserve tensor shape/channel order and pair well with pretrained features
 - **Ethical Considerations Documented:**
   - Privacy risks (retinal images are biometric identifiers)
   - False negative danger (missing mild DR delays treatment)
@@ -215,9 +211,10 @@ Use `99_lab_notes.ipynb` in each project for ongoing reflections.
 **Next Steps:**
 - [x] Notebook 02 - Transforms & DataLoaders (augmentation strategies)
 - [x] Notebook 03 - CNN architecture (transfer learning with class weights)
-- [x] Notebook 04 - Training & validation (baseline CNN)
-- [x] Notebook 05 - Test evaluation & threshold tuning (baseline results)
-- [ ] Switch to pretrained backbone (ResNet/EfficientNet) with stronger augmentation/oversampling
+- [x] Notebook 04 - Training & validation (ResNet baseline)
+- [x] Notebook 05 - Test evaluation & threshold tuning (ResNet)
+- [ ] Fine-tune deeper ResNet blocks, add retina-specific augmentations (CLAHE, rotations)
+- [ ] Experiment with focal loss / oversampling for minority classes
 - [ ] Re-run evaluation focusing on macro/weighted F1 and per-class recall
 
 [📖 Project README](projects/03_retinal_dr/README.md)
